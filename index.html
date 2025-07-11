@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Entertainment 🎬</title>
+    <style>
+        body {
+            background-color: #121212;
+            color: white;
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+        }
+        /* Header Design */
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #1e1e1e;
+            padding: 15px;
+            font-size: 22px;
+            font-weight: bold;
+            position: relative;
+        }
+        .logo {
+            position: absolute;
+            left: 15px;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+        }
+        /* Small Header */
+        .small-header {
+            background-color: #1e1e1e;
+            padding: 5px;
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.7);
+        }
+        /* Video Container */
+        .video-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 10px;
+        }
+        .video-box {
+            width: 90%;
+            max-width: 400px;
+            margin: 10px 15px;
+            cursor: pointer;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            overflow: hidden;
+            background-color: #1e1e1e;
+            transition: 0.3s;
+        }
+        .video-box:hover {
+            transform: scale(1.05);
+            border-color: white;
+        }
+        .video-box img {
+            width: 100%;
+            border-radius: 10px;
+            pointer-events: none; /* Disable Drag */
+            -webkit-user-drag: none; /* Safari */
+        }
+        .video-title {
+            font-size: 18px;
+            font-weight: bold;
+            padding: 10px;
+        }
+    </style>
+</head>
+<body oncontextmenu="return false"> <!-- Disable Right-Click -->
+
+    <!-- Header Section -->
+    <div class="header">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d2/Ranbir_Kapoor_promoting_Brahmastra.jpg/220px-Ranbir_Kapoor_promoting_Brahmastra.jpg" alt="Logo" class="logo">
+        Entertainment 🎬
+    </div>
+
+    <!-- Small Header Below Entertainment -->
+    <div class="small-header">Powered by BTF Group</div>
+
+    <!-- Video List Container -->
+    <div id="videoContainer" class="video-container"></div>
+
+    <script>
+        const jsonURL = "https://raw.githubusercontent.com/ydvkrn/Vid/refs/heads/main/ent.json"; // JSON File Link
+
+        fetch(jsonURL)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                displayVideos(data);
+            })
+            .catch(error => console.error("JSON Load Error: ", error));
+
+        function displayVideos(videos) {
+            let container = document.getElementById("videoContainer");
+            container.innerHTML = "";
+
+            videos.forEach(video => {
+                let videoBox = document.createElement("div");
+                videoBox.classList.add("video-box");
+
+                videoBox.innerHTML = `
+                    <img src="${video.thumbnail}" alt="Thumbnail">
+                    <div class="video-title">${video.title}</div>
+                `;
+
+                videoBox.onclick = () => window.location.href = video.redirect; // Redirect to given page
+
+                container.appendChild(videoBox);
+            });
+        }
+    </script>
+
+</body>
+</html>
