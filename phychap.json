@@ -1,32 +1,7 @@
 [
     {
-        "title": "Physics",
-        "thumbnail": "https://i.postimg.cc/7LQnjcSc/image.jpg",
-        "redirect": "Physics.html"
-    },
-    {
-        "title": "Botany",
-        "thumbnail": "https://i.postimg.cc/v8vtsc7f/image.jpg",
-        "redirect": "Botany.html"
-    },
-    {
-        "title": "Zoology",
-        "thumbnail": "https://i.postimg.cc/LXFCXw0W/image.jpg",
-        "redirect": "Zoology.html"
-    },
-    {
-        "title": "Physical Chemistry",
-        "thumbnail": "https://i.postimg.cc/RhDDLRR5/image.jpg",
-        "redirect": "Physical.html"
-    },
-  {
-        "title": "OrganicChemistry",
-        "thumbnail": "https://i.postimg.cc/RhDDLRR5/image.jpg",
-        "redirect": "Organic.html"
-  },
-  {
-        "title": "Inorganic Chemistry",
-        "thumbnail": "https://i.postimg.cc/RhDDLRR5/image.jpg",
-        "redirect": "Inorganic.html"
+        "title": "Basic Mathmatics And Calculation",
+        "thumbnail": "https://i.postimg.cc/4dLvfb3J/20250711-175415.jpg",
+        "redirect": "Phybasic.html"
     }
 ]
