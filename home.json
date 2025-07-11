@@ -1,0 +1,17 @@
+[
+    {
+        "title": "Lecture",
+        "thumbnail": "https://i.postimg.cc/gcvcKcnT/image.jpg",
+        "redirect": "lecture.html"
+    },
+    {
+        "title": "Notes",
+        "thumbnail": "https://i.postimg.cc/HW34jmdf/image.jpg",
+        "redirect": "notes.html"
+    },
+    {
+        "title": "Credit",
+        "thumbnail": "https://i.postimg.cc/TPqQ9DvP/image.jpg",
+        "redirect": "credit.html"
+    }
+]
