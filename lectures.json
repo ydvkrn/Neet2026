@@ -1,32 +1,32 @@
 [
     {
         "title": "Physics",
-        "thumbnail": "https://i.postimg.cc/7LQnjcSc/image.jpg",
+        "thumbnail": "https://i.postimg.cc/fLmG9L6S/images.jpg",
         "redirect": "Physics.html"
     },
     {
         "title": "Botany",
-        "thumbnail": "https://i.postimg.cc/v8vtsc7f/image.jpg",
+        "thumbnail": "https://i.postimg.cc/cCcPFz1s/images-1.jpg",
         "redirect": "Botany.html"
     },
     {
         "title": "Zoology",
-        "thumbnail": "https://i.postimg.cc/LXFCXw0W/image.jpg",
+        "thumbnail": "https://i.postimg.cc/vZKk2fy6/images-2.jpg",
         "redirect": "Zoology.html"
     },
     {
         "title": "Physical Chemistry",
-        "thumbnail": "https://i.postimg.cc/RhDDLRR5/image.jpg",
+        "thumbnail": "https://i.postimg.cc/Cx0zBBXk/images-5.jpg",
         "redirect": "Physical.html"
     },
   {
         "title": "OrganicChemistry",
-        "thumbnail": "https://i.postimg.cc/RhDDLRR5/image.jpg",
+        "thumbnail": "https://i.postimg.cc/4xFRCj6y/images-3.jpg",
         "redirect": "Organic.html"
   },
   {
         "title": "Inorganic Chemistry",
-        "thumbnail": "https://i.postimg.cc/RhDDLRR5/image.jpg",
+        "thumbnail": "https://i.postimg.cc/brXq74jk/images-4.jpg",
         "redirect": "Inorganic.html"
     }
 ]
