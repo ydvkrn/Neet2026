@@ -15,17 +15,8 @@
       min-height: 100vh;
       overflow-x: hidden;
     }
-
-    .hidden {
-      display: none !important;
-    }
-
-    .video-list {
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
-    }
-
+    .hidden { display: none !important; }
+    .video-list { display: flex; flex-direction: column; gap: 20px; }
     .video-item {
       background: #1e1e1e;
       border-radius: 10px;
@@ -34,35 +25,24 @@
       box-shadow: 0 2px 8px rgba(0,0,0,0.4);
       transition: transform 0.2s;
     }
-
-    .video-item:hover {
-      transform: scale(1.02);
-    }
-
-    .thumbnail {
-      width: 100%;
-      border-radius: 10px;
-    }
-
+    .video-item:hover { transform: scale(1.02); }
+    .thumbnail { width: 100%; border-radius: 10px; }
     .video-title {
       font-size: 18px;
       margin-top: 10px;
       text-align: center;
     }
-
     #screen2 {
       background: #1e1e1e;
       border-radius: 10px;
       padding: 15px;
       min-height: calc(100vh - 40px);
     }
-
     #videoTitle {
       font-size: 20px;
       margin: 10px 0;
       text-align: center;
     }
-
     #notesBtn {
       display: flex;
       align-items: center;
@@ -77,42 +57,26 @@
       width: fit-content;
       gap: 8px;
     }
-
     #notesBtn svg {
       width: 20px;
       height: 20px;
       fill: white;
     }
-
     video {
       width: 100%;
       max-height: 60vh;
       border-radius: 10px;
-      background: black; /* ✅ फुलस्क्रीन बैकग्राउंड फिक्स */
+      background: black;
     }
-
-    .plyr__video-wrapper {
-      background: black !important; /* ✅ Plyr container fix */
-    }
-
+    .plyr__video-wrapper { background: black !important; }
     html:fullscreen,
     body:fullscreen,
     video:fullscreen,
-    .plyr--fullscreen {
-      background: black !important; /* ✅ फुलस्क्रीन मोड fix */
-    }
-
+    .plyr--fullscreen { background: black !important; }
     @media screen and (orientation: landscape) {
-      video {
-        max-height: 100vh;
-      }
-      #screen2 {
-        padding: 0;
-        border-radius: 0;
-      }
-      #videoTitle, #notesBtn {
-        display: none;
-      }
+      video { max-height: 100vh; }
+      #screen2 { padding: 0; border-radius: 0; }
+      #videoTitle, #notesBtn { display: none; }
       #backBtn {
         position: absolute;
         top: 10px;
@@ -123,7 +87,6 @@
         border-radius: 5px;
       }
     }
-
     #backBtn {
       display: flex;
       align-items: center;
@@ -133,19 +96,16 @@
       font-size: 16px;
       margin-bottom: 10px;
     }
-
     #backBtn svg {
       width: 20px;
       height: 20px;
       fill: white;
     }
-
     .loading {
       text-align: center;
       font-size: 18px;
       color: #888;
     }
-
     .error {
       text-align: center;
       font-size: 18px;
@@ -157,11 +117,10 @@
   </style>
 </head>
 <body>
-  <!-- Screen 1 -->
+
   <h2 id="mainHeading">Structure Organisation in Animal</h2>
   <div id="screen1" class="video-list loading">कृपया प्रतीक्षा करें, वीडियो लोड हो रहे हैं...</div>
 
-  <!-- Screen 2 -->
   <div id="screen2" class="hidden">
     <div id="backBtn" role="button" aria-label="Back">
       <svg viewBox="0 0 24 24"><path d="M15.41 7.41 14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>
@@ -170,7 +129,7 @@
     <div id="videoTitle"></div>
     <video id="videoPlayer" controls playsinline>
       <source id="videoSource" src="" type="video/mp4">
-      <div class="error">वीडियो लोड करने में त्रुटि। कृपया बाद में पुनः प्रयास करें।</div>
+      <div class="error">वीडियो लोड करने में त्रुटि। कृपया बाद में प्रयास करें।</div>
     </video>
     <a id="notesBtn" href="#" target="_blank" class="hidden" aria-label="Download Notes">
       <svg viewBox="0 0 24 24">
@@ -183,6 +142,7 @@
   <script src="https://cdn.plyr.io/3.7.8/plyr.polyfilled.js"></script>
   <script>
     const jsonUrl = "https://raw.githubusercontent.com/ydvkrn/Neet2026/main/Biology/Zoology/Chap/1/files.json";
+    const workerBase = "https://inayatkhalil.btfcompany1.workers.dev/?id=";
 
     const screen1 = document.getElementById("screen1");
     const screen2 = document.getElementById("screen2");
@@ -214,7 +174,6 @@
           const item = document.createElement("div");
           item.className = "video-item";
           item.setAttribute("role", "button");
-          item.setAttribute("aria-label", `वीडियो चलाएँ: ${vid.title}`);
           item.onclick = () => showVideoScreen(vid);
 
           const img = document.createElement("img");
@@ -234,11 +193,11 @@
       .catch(err => {
         console.error("JSON load error:", err);
         screen1.classList.remove("loading");
-        screen1.innerHTML = '<div class="error">❌ वीडियो लोड करने में त्रुटि। कृपया बाद में पुनः प्रयास करें।</div>';
+        screen1.innerHTML = '<div class="error">❌ वीडियो लोड करने में त्रुटि।</div>';
       });
 
     function showVideoScreen(videoData) {
-      videoSource.src = videoData.videoUrl;
+      videoSource.src = workerBase + videoData.id;
       videoPlayer.load();
       videoTitle.textContent = videoData.title;
 
