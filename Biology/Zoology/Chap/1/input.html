@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <title>Structure Organisation in Animal</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css">
+  <link href="https://vjs.zencdn.net/8.10.0/video-js.css" rel="stylesheet">
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -62,19 +62,18 @@
       height: 20px;
       fill: white;
     }
-    video {
+    .video-js {
       width: 100%;
       max-height: 60vh;
       border-radius: 10px;
       background: black;
     }
-    .plyr__video-wrapper { background: black !important; }
+    .vjs-poster { background-color: black !important; }
     html:fullscreen,
     body:fullscreen,
-    video:fullscreen,
-    .plyr--fullscreen { background: black !important; }
+    .video-js:fullscreen { background: black !important; }
     @media screen and (orientation: landscape) {
-      video { max-height: 100vh; }
+      .video-js { max-height: 100vh; }
       #screen2 { padding: 0; border-radius: 0; }
       #videoTitle, #notesBtn { display: none; }
       #backBtn {
@@ -127,7 +126,7 @@
       <span>Back</span>
     </div>
     <div id="videoTitle"></div>
-    <video id="videoPlayer" controls playsinline>
+    <video id="videoPlayer" class="video-js vjs-default-skin" controls playsinline preload="auto">
       <source id="videoSource" src="" type="video/mp4">
       <div class="error">वीडियो लोड करने में त्रुटि। कृपया बाद में प्रयास करें।</div>
     </video>
@@ -139,10 +138,10 @@
     </a>
   </div>
 
-  <script src="https://cdn.plyr.io/3.7.8/plyr.polyfilled.js"></script>
+  <script src="https://vjs.zencdn.net/8.10.0/video.min.js"></script>
   <script>
     const jsonUrl = "https://raw.githubusercontent.com/ydvkrn/Neet2026/main/Biology/Zoology/Chap/1/files.json";
-    const workerBase = "https://inayatkhalil.btfcompany1.workers.dev/?id=";
+    const workerBase = "https://fantasyofbluefilms.btfcompany1.workers.dev/?id=";
 
     const screen1 = document.getElementById("screen1");
     const screen2 = document.getElementById("screen2");
@@ -153,9 +152,21 @@
     const videoSource = document.getElementById("videoSource");
     const backBtn = document.getElementById("backBtn");
 
-    const player = new Plyr(videoPlayer, {
-      controls: ['play', 'progress', 'current-time', 'mute', 'fullscreen'],
-      seekTime: 10
+    // Initialize Video.js player
+    const player = videojs(videoPlayer, {
+      controls: true,
+      playsinline: true,
+      preload: 'auto',
+      fluid: true,
+      controlBar: {
+        playToggle: true,
+        progressControl: true,
+        currentTimeDisplay: true,
+        timeDivider: true,
+        durationDisplay: true,
+        volumePanel: true,
+        fullscreenToggle: true
+      }
     });
 
     fetch(jsonUrl)
@@ -174,7 +185,7 @@
           const item = document.createElement("div");
           item.className = "video-item";
           item.setAttribute("role", "button");
-          item.onclick = () => showVideoScreen(vid);
+          item.onclick = async () => showVideoScreen(vid); // Async for token generation
 
           const img = document.createElement("img");
           img.src = vid.thumbnail;
@@ -196,28 +207,35 @@
         screen1.innerHTML = '<div class="error">❌ वीडियो लोड करने में त्रुटि।</div>';
       });
 
-    function showVideoScreen(videoData) {
-      videoSource.src = workerBase + videoData.id;
-      videoPlayer.load();
-      videoTitle.textContent = videoData.title;
+    async function showVideoScreen(videoData) {
+      try {
+        const token = await generateToken();
+        const videoUrl = `${workerBase}${videoData.id}&token=${token}`;
+        player.src({ src: videoUrl, type: 'video/mp4' });
+        videoTitle.textContent = videoData.title;
 
-      if (videoData.pdfUrl) {
-        notesBtn.classList.remove("hidden");
-        notesBtn.href = videoData.pdfUrl;
-      } else {
-        notesBtn.classList.add("hidden");
+        if (videoData.pdfUrl) {
+          notesBtn.classList.remove("hidden");
+          notesBtn.href = videoData.pdfUrl;
+        } else {
+          notesBtn.classList.add("hidden");
+        }
+
+        screen1.classList.add("hidden");
+        mainHeading.classList.add("hidden");
+        screen2.classList.remove("hidden");
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        handleOrientationChange();
+      } catch (err) {
+        console.error("Error loading video:", err);
+        videoPlayer.innerHTML = `<div class="error">वीडियो लोड करने में त्रुटि: ${err.message}</div>`;
       }
-
-      screen1.classList.add("hidden");
-      mainHeading.classList.add("hidden");
-      screen2.classList.remove("hidden");
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-      handleOrientationChange();
     }
 
     backBtn.onclick = () => {
-      player.stop();
-      player.fullscreen.exit();
+      player.pause();
+      player.currentTime(0);
+      player.exitFullscreen();
       screen2.classList.add("hidden");
       screen1.classList.remove("hidden");
       mainHeading.classList.remove("hidden");
@@ -228,9 +246,9 @@
       if (screen2.classList.contains("hidden")) return;
       const orientation = window.screen.orientation ? window.screen.orientation.type : window.orientation;
       if (orientation.includes("landscape")) {
-        player.fullscreen.enter();
+        player.requestFullscreen();
       } else {
-        player.fullscreen.exit();
+        player.exitFullscreen();
       }
     }
 
@@ -239,6 +257,32 @@
     } else {
       window.addEventListener("orientationchange", handleOrientationChange);
     }
+
+    // Token generation function
+    async function generateToken() {
+      const SECRET = "BTFxMSM0ZoologyChap1";
+      const timestamp = Math.floor(Date.now() / 1000);
+      const hashBuffer = await crypto.subtle.digest(
+        "SHA-256",
+        new TextEncoder().encode(timestamp + SECRET)
+      );
+      const hash = Array.from(new Uint8Array(hashBuffer))
+        .map(b => b.toString(16).padStart(2, "0"))
+        .join("");
+      return `${timestamp}.${hash}`;
+    }
+
+    // Error handling for video playback
+    player.on('error', function(e) {
+      const error = player.error();
+      console.error('Video.js error:', error ? `${error.code}: ${error.message}` : 'Unknown error');
+      videoPlayer.innerHTML = `<div class="error">वीडियो लोड करने में त्रुटि: ${error ? error.message : 'अज्ञात त्रुटि'}</div>`;
+    });
+
+    // Log seekable range for debugging
+    player.on('loadedmetadata', function() {
+      console.log('Seekable range:', player.seekable().start(0), player.seekable().end(0));
+    });
   </script>
 </body>
 </html>
