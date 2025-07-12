@@ -141,7 +141,9 @@
   <script src="https://vjs.zencdn.net/8.10.0/video.min.js"></script>
   <script>
     const jsonUrl = "https://raw.githubusercontent.com/ydvkrn/Neet2026/main/Biology/Zoology/Chap/1/files.json";
-    const workerBase = "https://fantasyofbluefilms.btfcompany1.workers.dev/?id=";
+    const workerBase = "https://yellow-haze-a511.btfcompany1.workers.dev/?id=";
+    let tokenRefreshInterval = null;
+    let currentVideoId = null;
 
     const screen1 = document.getElementById("screen1");
     const screen2 = document.getElementById("screen2");
@@ -149,7 +151,6 @@
     const videoTitle = document.getElementById("videoTitle");
     const notesBtn = document.getElementById("notesBtn");
     const videoPlayer = document.getElementById("videoPlayer");
-    const videoSource = document.getElementById("videoSource");
     const backBtn = document.getElementById("backBtn");
 
     // Initialize Video.js player
@@ -185,7 +186,7 @@
           const item = document.createElement("div");
           item.className = "video-item";
           item.setAttribute("role", "button");
-          item.onclick = async () => showVideoScreen(vid); // Async for token generation
+          item.onclick = async () => showVideoScreen(vid);
 
           const img = document.createElement("img");
           img.src = vid.thumbnail;
@@ -209,9 +210,19 @@
 
     async function showVideoScreen(videoData) {
       try {
+        // Clear previous token refresh interval
+        if (tokenRefreshInterval) clearInterval(tokenRefreshInterval);
+
+        currentVideoId = videoData.id; // Store current video ID
         const token = await generateToken();
         const videoUrl = `${workerBase}${videoData.id}&token=${token}`;
+        let currentTime = player.currentTime() || 0;
+        let wasPlaying = !player.paused();
+
         player.src({ src: videoUrl, type: 'video/mp4' });
+        player.currentTime(currentTime);
+        if (wasPlaying) player.play();
+
         videoTitle.textContent = videoData.title;
 
         if (videoData.pdfUrl) {
@@ -226,6 +237,24 @@
         screen2.classList.remove("hidden");
         window.scrollTo({ top: 0, behavior: 'smooth' });
         handleOrientationChange();
+
+        // Start token refresh every 9 minutes (540 seconds)
+        tokenRefreshInterval = setInterval(async () => {
+          try {
+            const newToken = await generateToken();
+            const newVideoUrl = `${workerBase}${currentVideoId}&token=${newToken}`;
+            currentTime = player.currentTime();
+            wasPlaying = !player.paused();
+            player.src({ src: newVideoUrl, type: 'video/mp4' });
+            player.currentTime(currentTime);
+            if (wasPlaying) player.play();
+            console.log("Token refreshed, video URL updated");
+          } catch (err) {
+            console.error("Token refresh error:", err);
+            player.pause();
+            videoPlayer.innerHTML = `<div class="error">टोकन रिफ्रेश करने में त्रुटि। कृपया पुनः प्रयास करें।</div>`;
+          }
+        }, 540000); // 9 minutes
       } catch (err) {
         console.error("Error loading video:", err);
         videoPlayer.innerHTML = `<div class="error">वीडियो लोड करने में त्रुटि: ${err.message}</div>`;
@@ -233,6 +262,8 @@
     }
 
     backBtn.onclick = () => {
+      if (tokenRefreshInterval) clearInterval(tokenRefreshInterval);
+      currentVideoId = null;
       player.pause();
       player.currentTime(0);
       player.exitFullscreen();
@@ -277,6 +308,7 @@
       const error = player.error();
       console.error('Video.js error:', error ? `${error.code}: ${error.message}` : 'Unknown error');
       videoPlayer.innerHTML = `<div class="error">वीडियो लोड करने में त्रुटि: ${error ? error.message : 'अज्ञात त्रुटि'}</div>`;
+      if (tokenRefreshInterval) clearInterval(tokenRefreshInterval);
     });
 
     // Log seekable range for debugging
