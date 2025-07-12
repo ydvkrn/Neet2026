@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <title>Structure Organisation in Animal</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link href="https://vjs.zencdn.net/8.10.0/video-js.css" rel="stylesheet">
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -15,8 +14,15 @@
       min-height: 100vh;
       overflow-x: hidden;
     }
+
     .hidden { display: none !important; }
-    .video-list { display: flex; flex-direction: column; gap: 20px; }
+
+    .video-list {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
     .video-item {
       background: #1e1e1e;
       border-radius: 10px;
@@ -25,24 +31,32 @@
       box-shadow: 0 2px 8px rgba(0,0,0,0.4);
       transition: transform 0.2s;
     }
+
     .video-item:hover { transform: scale(1.02); }
-    .thumbnail { width: 100%; border-radius: 10px; }
+
+    .thumbnail {
+      width: 100%;
+      border-radius: 10px;
+    }
+
     .video-title {
       font-size: 18px;
       margin-top: 10px;
       text-align: center;
     }
+
     #screen2 {
       background: #1e1e1e;
       border-radius: 10px;
       padding: 15px;
-      min-height: calc(100vh - 40px);
     }
+
     #videoTitle {
       font-size: 20px;
       margin: 10px 0;
       text-align: center;
     }
+
     #notesBtn {
       display: flex;
       align-items: center;
@@ -57,35 +71,20 @@
       width: fit-content;
       gap: 8px;
     }
-    #notesBtn svg {
-      width: 20px;
-      height: 20px;
-      fill: white;
-    }
-    .video-js {
+
+    video {
       width: 100%;
       max-height: 60vh;
       border-radius: 10px;
       background: black;
     }
-    .vjs-poster { background-color: black !important; }
-    html:fullscreen,
-    body:fullscreen,
-    .video-js:fullscreen { background: black !important; }
+
     @media screen and (orientation: landscape) {
-      .video-js { max-height: 100vh; }
+      video { max-height: 100vh; }
       #screen2 { padding: 0; border-radius: 0; }
       #videoTitle, #notesBtn { display: none; }
-      #backBtn {
-        position: absolute;
-        top: 10px;
-        left: 10px;
-        z-index: 1000;
-        background: rgba(0, 0, 0, 0.7);
-        padding: 5px;
-        border-radius: 5px;
-      }
     }
+
     #backBtn {
       display: flex;
       align-items: center;
@@ -95,16 +94,13 @@
       font-size: 16px;
       margin-bottom: 10px;
     }
-    #backBtn svg {
-      width: 20px;
-      height: 20px;
-      fill: white;
-    }
+
     .loading {
       text-align: center;
       font-size: 18px;
       color: #888;
     }
+
     .error {
       text-align: center;
       font-size: 18px;
@@ -115,35 +111,30 @@
     }
   </style>
 </head>
-<body>
+<body oncontextmenu="return false">
 
   <h2 id="mainHeading">Structure Organisation in Animal</h2>
   <div id="screen1" class="video-list loading">कृपया प्रतीक्षा करें, वीडियो लोड हो रहे हैं...</div>
 
   <div id="screen2" class="hidden">
-    <div id="backBtn" role="button" aria-label="Back">
-      <svg viewBox="0 0 24 24"><path d="M15.41 7.41 14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>
-      <span>Back</span>
-    </div>
+    <div id="backBtn" role="button">← Back</div>
     <div id="videoTitle"></div>
-    <video id="videoPlayer" class="video-js vjs-default-skin" controls playsinline preload="auto">
+    <video
+      id="videoPlayer"
+      controls
+      controlsList="nodownload"
+      disablePictureInPicture
+      preload="auto"
+      playsinline
+    >
       <source id="videoSource" src="" type="video/mp4">
-      <div class="error">वीडियो लोड करने में त्रुटि। कृपया बाद में प्रयास करें।</div>
     </video>
-    <a id="notesBtn" href="#" target="_blank" class="hidden" aria-label="Download Notes">
-      <svg viewBox="0 0 24 24">
-        <path d="M19 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2zm-2 14H7v-1h10v1zm0-3H7v-1h10v1zm0-3H7V9h10v2z"/>
-      </svg>
-      <span>Download Notes</span>
-    </a>
+    <a id="notesBtn" href="#" target="_blank" class="hidden">Download Notes</a>
   </div>
 
-  <script src="https://vjs.zencdn.net/8.10.0/video.min.js"></script>
   <script>
     const jsonUrl = "https://raw.githubusercontent.com/ydvkrn/Neet2026/main/Biology/Zoology/Chap/1/files.json";
-    const workerBase = "https://yellow-haze-a511.btfcompany1.workers.dev/?id=";
-    let tokenRefreshInterval = null;
-    let currentVideoId = null;
+    const workerBase = "https://fantasyofbluefilms.btfcompany1.workers.dev/?id=";
 
     const screen1 = document.getElementById("screen1");
     const screen2 = document.getElementById("screen2");
@@ -151,46 +142,21 @@
     const videoTitle = document.getElementById("videoTitle");
     const notesBtn = document.getElementById("notesBtn");
     const videoPlayer = document.getElementById("videoPlayer");
+    const videoSource = document.getElementById("videoSource");
     const backBtn = document.getElementById("backBtn");
 
-    // Initialize Video.js player
-    const player = videojs(videoPlayer, {
-      controls: true,
-      playsinline: true,
-      preload: 'auto',
-      fluid: true,
-      controlBar: {
-        playToggle: true,
-        progressControl: true,
-        currentTimeDisplay: true,
-        timeDivider: true,
-        durationDisplay: true,
-        volumePanel: true,
-        fullscreenToggle: true
-      }
-    });
-
     fetch(jsonUrl)
-      .then(res => {
-        if (!res.ok) throw new Error("JSON लोड करने में त्रुटि");
-        return res.json();
-      })
+      .then(res => res.json())
       .then(data => {
         screen1.innerHTML = "";
         screen1.classList.remove("loading");
-        if (!data.videos || data.videos.length === 0) {
-          screen1.innerHTML = '<div class="error">कोई वीडियो उपलब्ध नहीं है।</div>';
-          return;
-        }
-        data.videos.forEach((vid) => {
+        data.videos.forEach(vid => {
           const item = document.createElement("div");
           item.className = "video-item";
-          item.setAttribute("role", "button");
           item.onclick = async () => showVideoScreen(vid);
 
           const img = document.createElement("img");
           img.src = vid.thumbnail;
-          img.alt = `थंबनेल: ${vid.title}`;
           img.className = "thumbnail";
 
           const title = document.createElement("div");
@@ -202,119 +168,51 @@
           screen1.appendChild(item);
         });
       })
-      .catch(err => {
-        console.error("JSON load error:", err);
+      .catch(() => {
         screen1.classList.remove("loading");
         screen1.innerHTML = '<div class="error">❌ वीडियो लोड करने में त्रुटि।</div>';
       });
 
     async function showVideoScreen(videoData) {
-      try {
-        // Clear previous token refresh interval
-        if (tokenRefreshInterval) clearInterval(tokenRefreshInterval);
+      const token = await generateToken();
+      const videoUrl = `${workerBase}${videoData.id}&token=${token}`;
+      videoSource.src = videoUrl;
+      videoPlayer.load();
 
-        currentVideoId = videoData.id; // Store current video ID
-        const token = await generateToken();
-        const videoUrl = `${workerBase}${videoData.id}&token=${token}`;
-        let currentTime = player.currentTime() || 0;
-        let wasPlaying = !player.paused();
+      videoTitle.textContent = videoData.title;
 
-        player.src({ src: videoUrl, type: 'video/mp4' });
-        player.currentTime(currentTime);
-        if (wasPlaying) player.play();
-
-        videoTitle.textContent = videoData.title;
-
-        if (videoData.pdfUrl) {
-          notesBtn.classList.remove("hidden");
-          notesBtn.href = videoData.pdfUrl;
-        } else {
-          notesBtn.classList.add("hidden");
-        }
-
-        screen1.classList.add("hidden");
-        mainHeading.classList.add("hidden");
-        screen2.classList.remove("hidden");
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-        handleOrientationChange();
-
-        // Start token refresh every 9 minutes (540 seconds)
-        tokenRefreshInterval = setInterval(async () => {
-          try {
-            const newToken = await generateToken();
-            const newVideoUrl = `${workerBase}${currentVideoId}&token=${newToken}`;
-            currentTime = player.currentTime();
-            wasPlaying = !player.paused();
-            player.src({ src: newVideoUrl, type: 'video/mp4' });
-            player.currentTime(currentTime);
-            if (wasPlaying) player.play();
-            console.log("Token refreshed, video URL updated");
-          } catch (err) {
-            console.error("Token refresh error:", err);
-            player.pause();
-            videoPlayer.innerHTML = `<div class="error">टोकन रिफ्रेश करने में त्रुटि। कृपया पुनः प्रयास करें।</div>`;
-          }
-        }, 540000); // 9 minutes
-      } catch (err) {
-        console.error("Error loading video:", err);
-        videoPlayer.innerHTML = `<div class="error">वीडियो लोड करने में त्रुटि: ${err.message}</div>`;
+      if (videoData.pdfUrl) {
+        notesBtn.classList.remove("hidden");
+        notesBtn.href = videoData.pdfUrl;
+      } else {
+        notesBtn.classList.add("hidden");
       }
+
+      screen1.classList.add("hidden");
+      mainHeading.classList.add("hidden");
+      screen2.classList.remove("hidden");
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     backBtn.onclick = () => {
-      if (tokenRefreshInterval) clearInterval(tokenRefreshInterval);
-      currentVideoId = null;
-      player.pause();
-      player.currentTime(0);
-      player.exitFullscreen();
+      videoPlayer.pause();
       screen2.classList.add("hidden");
       screen1.classList.remove("hidden");
       mainHeading.classList.remove("hidden");
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      videoSource.src = "";
+      videoPlayer.load();
     };
 
-    function handleOrientationChange() {
-      if (screen2.classList.contains("hidden")) return;
-      const orientation = window.screen.orientation ? window.screen.orientation.type : window.orientation;
-      if (orientation.includes("landscape")) {
-        player.requestFullscreen();
-      } else {
-        player.exitFullscreen();
-      }
-    }
-
-    if (window.screen.orientation) {
-      window.screen.orientation.addEventListener("change", handleOrientationChange);
-    } else {
-      window.addEventListener("orientationchange", handleOrientationChange);
-    }
-
-    // Token generation function
     async function generateToken() {
       const SECRET = "BTFxMSM0ZoologyChap1";
       const timestamp = Math.floor(Date.now() / 1000);
-      const hashBuffer = await crypto.subtle.digest(
-        "SHA-256",
-        new TextEncoder().encode(timestamp + SECRET)
-      );
-      const hash = Array.from(new Uint8Array(hashBuffer))
-        .map(b => b.toString(16).padStart(2, "0"))
-        .join("");
-      return `${timestamp}.${hash}`;
+      const msg = timestamp + SECRET;
+
+      const hashBuffer = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(msg));
+      const hashArray = Array.from(new Uint8Array(hashBuffer));
+      const hashHex = hashArray.map(b => b.toString(16).padStart(2, "0")).join("");
+      return `${timestamp}.${hashHex}`;
     }
-
-    // Error handling for video playback
-    player.on('error', function(e) {
-      const error = player.error();
-      console.error('Video.js error:', error ? `${error.code}: ${error.message}` : 'Unknown error');
-      videoPlayer.innerHTML = `<div class="error">वीडियो लोड करने में त्रुटि: ${error ? error.message : 'अज्ञात त्रुटि'}</div>`;
-      if (tokenRefreshInterval) clearInterval(tokenRefreshInterval);
-    });
-
-    // Log seekable range for debugging
-    player.on('loadedmetadata', function() {
-      console.log('Seekable range:', player.seekable().start(0), player.seekable().end(0));
-    });
   </script>
 </body>
 </html>
