@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8">
+  <title>Structure Organisation in Animal<o/title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #121212;
+      color: white;
+      margin: 0;
+      padding: 20px;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .video-list {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .video-item {
+      background: #1e1e1e;
+      border-radius: 10px;
+      padding: 10px;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+      transition: transform 0.2s;
+    }
+
+    .video-item:hover {
+      transform: scale(1.02);
+    }
+
+    .thumbnail {
+      width: 100%;
+      border-radius: 10px;
+    }
+
+    .video-title {
+      font-size: 18px;
+      margin-top: 10px;
+      text-align: center;
+    }
+
+    /* Screen 2 (Player) */
+    #screen2 {
+      background: #1e1e1e;
+      border-radius: 10px;
+      padding: 15px;
+      min-height: calc(100vh - 40px);
+    }
+
+    #videoTitle {
+      font-size: 20px;
+      margin: 10px 0;
+      text-align: center;
+    }
+
+    #notesBtn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 15px auto 0;
+      background: #00c853;
+      padding: 10px 16px;
+      color: white;
+      text-decoration: none;
+      border-radius: 5px;
+      font-size: 16px;
+      width: fit-content;
+      gap: 8px;
+    }
+
+    #notesBtn svg {
+      width: 20px;
+      height: 20px;
+      fill: white;
+    }
+
+    video {
+      width: 100%;
+      max-height: 60vh;
+      border-radius: 10px;
+    }
+
+    /* Ensure video takes full width in landscape */
+    @media screen and (orientation: landscape) {
+      video {
+        max-height: 100vh;
+      }
+      #screen2 {
+        padding: 0;
+        border-radius: 0;
+      }
+      #videoTitle, #notesBtn {
+        display: none; /* Hide title and notes button in landscape for cleaner full-screen */
+      }
+      #backBtn {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        z-index: 1000;
+        background: rgba(0, 0, 0, 0.7);
+        padding: 5px;
+        border-radius: 5px;
+      }
+    }
+
+    /* Back Arrow */
+    #backBtn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: white;
+      cursor: pointer;
+      font-size: 16px;
+      margin-bottom: 10px;
+    }
+
+    #backBtn svg {
+      width: 20px;
+      height: 20px;
+      fill: white;
+    }
+
+    /* Loading and Error States */
+    .loading {
+      text-align: center;
+      font-size: 18px;
+      color: #888;
+    }
+
+    .error {
+      text-align: center;
+      font-size: 18px;
+      color: #ff4444;
+      background: #2e1e1e;
+      padding: 15px;
+      border-radius: 10px;
+    }
+  </style>
+</head>
+<body>
+  <!-- Screen 1 -->
+  <h2 id="mainHeading">Basic Mathmatics & Calculation 🧮</h2>
+  <div id="screen1" class="video-list loading">कृपया प्रतीक्षा करें, वीडियो लोड हो रहे हैं...</div>
+
+  <!-- Screen 2 -->
+  <div id="screen2" class="hidden">
+    <div id="backBtn" role="button" aria-label="Back">
+      <svg viewBox="0 0 24 24"><path d="M15.41 7.41 14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>
+      <span>Back</span>
+    </div>
+    <div id="videoTitle"></div>
+    <video id="videoPlayer" controls playsinline>
+      <source id="videoSource" src="" type="video/mp4">
+      <div class="error">वीडियो लोड करने में त्रुटि। कृपया बाद में पुनः प्रयास करें।</div>
+    </video>
+    <a id="notesBtn" href="#" target="_blank" class="hidden" aria-label="Download Notes">
+      <svg viewBox="0 0 24 24">
+        <path d="M19 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2zm-2 14H7v-1h10v1zm0-3H7v-1h10v1zm0-3H7V9h10v2z"/>
+      </svg>
+      <span>Download Notes</span>
+    </a>
+  </div>
+
+  <script src="https://cdn.plyr.io/3.7.8/plyr.polyfilled.js"></script>
+  <script>
+    const jsonUrl = "https://raw.githubusercontent.com/ydvkrn/Neet2026/main/phybasic.json";
+
+    const screen1 = document.getElementById("screen1");
+    const screen2 = document.getElementById("screen2");
+    const mainHeading = document.getElementById("mainHeading");
+    const videoTitle = document.getElementById("videoTitle");
+    const notesBtn = document.getElementById("notesBtn");
+    const videoPlayer = document.getElementById("videoPlayer");
+    const videoSource = document.getElementById("videoSource");
+    const backBtn = document.getElementById("backBtn");
+
+    const player = new Plyr(videoPlayer, {
+      controls: ['play', 'progress', 'current-time', 'mute', 'fullscreen'],
+      seekTime: 10
+    });
+
+    // Load video list
+    fetch(jsonUrl)
+      .then(res => {
+        if (!res.ok) throw new Error("JSON लोड करने में त्रुटि");
+        return res.json();
+      })
+      .then(data => {
+        screen1.innerHTML = "";
+        screen1.classList.remove("loading");
+        if (!data.videos || data.videos.length === 0) {
+          screen1.innerHTML = '<div class="error">कोई वीडियो उपलब्ध नहीं है।</div>';
+          return;
+        }
+        data.videos.forEach((vid) => {
+          const item = document.createElement("div");
+          item.className = "video-item";
+          item.setAttribute("role", "button");
+          item.setAttribute("aria-label", `वीडियो चलाएँ: ${vid.title}`);
+          item.onclick = () => showVideoScreen(vid);
+
+          const img = document.createElement("img");
+          img.src = vid.thumbnail;
+          img.alt = `थंबनेल: ${vid.title}`;
+          img.className = "thumbnail";
+
+          const title = document.createElement("div");
+          title.className = "video-title";
+          title.textContent = vid.title;
+
+          item.appendChild(img);
+          item.appendChild(title);
+          screen1.appendChild(item);
+        });
+      })
+      .catch(err => {
+        console.error("JSON load error:", err);
+        screen1.classList.remove("loading");
+        screen1.innerHTML = '<div class="error">❌ वीडियो लोड करने में त्रुटि। कृपया बाद में पुनः प्रयास करें।</div>';
+      });
+
+    function showVideoScreen(videoData) {
+      videoSource.src = videoData.videoUrl;
+      videoPlayer.load();
+      videoTitle.textContent = videoData.title;
+
+      if (videoData.pdfUrl) {
+        notesBtn.classList.remove("hidden");
+        notesBtn.href = videoData.pdfUrl;
+      } else {
+        notesBtn.classList.add("hidden");
+      }
+
+      // Switch screen: hide screen1 and mainHeading, show screen2
+      screen1.classList.add("hidden");
+      mainHeading.classList.add("hidden");
+      screen2.classList.remove("hidden");
+
+      // Scroll to top
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+
+      // Check orientation and toggle full-screen
+      handleOrientationChange();
+    }
+
+    backBtn.onclick = () => {
+      player.stop();
+      player.fullscreen.exit(); // Exit full-screen when going back
+      screen2.classList.add("hidden");
+      screen1.classList.remove("hidden");
+      mainHeading.classList.remove("hidden");
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    // Handle orientation changes
+    function handleOrientationChange() {
+      if (screen2.classList.contains("hidden")) return; // Only handle if video screen is active
+
+      const orientation = window.screen.orientation ? window.screen.orientation.type : window.orientation;
+      if (orientation.includes("landscape")) {
+        player.fullscreen.enter();
+      } else {
+        player.fullscreen.exit();
+      }
+    }
+
+    // Listen for orientation changes
+    if (window.screen.orientation) {
+      window.screen.orientation.addEventListener("change", handleOrientationChange);
+    } else {
+      // Fallback for older browsers
+      window.addEventListener("orientationchange", handleOrientationChange);
+    }
+  </script>
+</body>
+  </html>
