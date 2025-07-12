@@ -2,7 +2,7 @@
 <html lang="hi">
 <head>
   <meta charset="UTF-8">
-  <title>Structure Organisation in Animal<o/title>
+  <title>Structure Organisation in Animal</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css">
   <style>
@@ -50,7 +50,6 @@
       text-align: center;
     }
 
-    /* Screen 2 (Player) */
     #screen2 {
       background: #1e1e1e;
       border-radius: 10px;
@@ -89,9 +88,20 @@
       width: 100%;
       max-height: 60vh;
       border-radius: 10px;
+      background: black; /* ✅ फुलस्क्रीन बैकग्राउंड फिक्स */
     }
 
-    /* Ensure video takes full width in landscape */
+    .plyr__video-wrapper {
+      background: black !important; /* ✅ Plyr container fix */
+    }
+
+    html:fullscreen,
+    body:fullscreen,
+    video:fullscreen,
+    .plyr--fullscreen {
+      background: black !important; /* ✅ फुलस्क्रीन मोड fix */
+    }
+
     @media screen and (orientation: landscape) {
       video {
         max-height: 100vh;
@@ -101,7 +111,7 @@
         border-radius: 0;
       }
       #videoTitle, #notesBtn {
-        display: none; /* Hide title and notes button in landscape for cleaner full-screen */
+        display: none;
       }
       #backBtn {
         position: absolute;
@@ -114,7 +124,6 @@
       }
     }
 
-    /* Back Arrow */
     #backBtn {
       display: flex;
       align-items: center;
@@ -131,7 +140,6 @@
       fill: white;
     }
 
-    /* Loading and Error States */
     .loading {
       text-align: center;
       font-size: 18px;
@@ -190,7 +198,6 @@
       seekTime: 10
     });
 
-    // Load video list
     fetch(jsonUrl)
       .then(res => {
         if (!res.ok) throw new Error("JSON लोड करने में त्रुटि");
@@ -242,31 +249,24 @@
         notesBtn.classList.add("hidden");
       }
 
-      // Switch screen: hide screen1 and mainHeading, show screen2
       screen1.classList.add("hidden");
       mainHeading.classList.add("hidden");
       screen2.classList.remove("hidden");
-
-      // Scroll to top
       window.scrollTo({ top: 0, behavior: 'smooth' });
-
-      // Check orientation and toggle full-screen
       handleOrientationChange();
     }
 
     backBtn.onclick = () => {
       player.stop();
-      player.fullscreen.exit(); // Exit full-screen when going back
+      player.fullscreen.exit();
       screen2.classList.add("hidden");
       screen1.classList.remove("hidden");
       mainHeading.classList.remove("hidden");
       window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
-    // Handle orientation changes
     function handleOrientationChange() {
-      if (screen2.classList.contains("hidden")) return; // Only handle if video screen is active
-
+      if (screen2.classList.contains("hidden")) return;
       const orientation = window.screen.orientation ? window.screen.orientation.type : window.orientation;
       if (orientation.includes("landscape")) {
         player.fullscreen.enter();
@@ -275,13 +275,11 @@
       }
     }
 
-    // Listen for orientation changes
     if (window.screen.orientation) {
       window.screen.orientation.addEventListener("change", handleOrientationChange);
     } else {
-      // Fallback for older browsers
       window.addEventListener("orientationchange", handleOrientationChange);
     }
   </script>
 </body>
-  </html>
+</html>
