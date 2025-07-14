@@ -17,16 +17,16 @@
     {
         "title": "Physical Chemistry",
         "thumbnail": "https://i.postimg.cc/Cx0zBBXk/images-5.jpg",
-        "redirect": "Physical.html"
+        "redirect": "Chemistry/Physical/Physical.html"
     },
   {
         "title": "OrganicChemistry",
         "thumbnail": "https://i.postimg.cc/4xFRCj6y/images-3.jpg",
-        "redirect": "Organic.html"
+        "redirect": "Chemistry/Organic/Organic.html"
   },
   {
         "title": "Inorganic Chemistry",
         "thumbnail": "https://i.postimg.cc/brXq74jk/images-4.jpg",
-        "redirect": "Inorganic.html"
+        "redirect": "Chemistry/Inorganic/Inorganic.html"
     }
 ]
