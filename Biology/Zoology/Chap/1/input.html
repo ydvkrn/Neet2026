@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <title>Structure Organisation in Animal</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
+  <link rel="stylesheet" href="https://unpkg.com/@oplayer/core@latest/dist/index.css" />
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -73,7 +73,7 @@
       gap: 8px;
     }
 
-    video.plyr {
+    #oplayer {
       width: 100%;
       max-height: 60vh;
       border-radius: 10px;
@@ -81,7 +81,7 @@
     }
 
     @media screen and (orientation: landscape) {
-      video.plyr { max-height: 100vh; }
+      #oplayer { max-height: 100vh; }
       #screen2 { padding: 0; border-radius: 0; }
       #videoTitle, #notesBtn { display: none; }
     }
@@ -120,33 +120,12 @@
   <div id="screen2" class="hidden">
     <div id="backBtn" role="button">← Back</div>
     <div id="videoTitle"></div>
-    <video
-      id="videoPlayer"
-      class="plyr"
-      controls
-      playsinline
-      preload="auto"
-      disablePictureInPicture
-      controlsList="nodownload"
-    >
-      <source id="videoSource" src="" type="video/mp4">
-    </video>
+    <div id="oplayer"></div>
     <a id="notesBtn" href="#" target="_blank" class="hidden">Download Notes</a>
   </div>
 
-  <script src="https://cdn.plyr.io/3.7.8/plyr.polyfilled.js"></script>
+  <script src="https://unpkg.com/@oplayer/core@latest"></script>
   <script>
-    const player = new Plyr('#videoPlayer', {
-      controls: [
-        'play-large', 'play', 'rewind', 'fast-forward',
-        'progress', 'current-time', 'mute', 'settings',
-        'pip', 'airplay', 'fullscreen'
-      ],
-      settings: ['quality', 'speed'],
-      tooltips: { controls: true },
-      i18n: { rewind: "10s पीछे", fastForward: "10s आगे" },
-    });
-
     const jsonUrl = "https://raw.githubusercontent.com/ydvkrn/Neet2026/main/Biology/Zoology/Chap/1/files.json";
     const workerBase = "https://yellow-haze-a511.btfcompany1.workers.dev/?id=";
 
@@ -155,9 +134,9 @@
     const mainHeading = document.getElementById("mainHeading");
     const videoTitle = document.getElementById("videoTitle");
     const notesBtn = document.getElementById("notesBtn");
-    const videoPlayer = document.getElementById("videoPlayer");
-    const videoSource = document.getElementById("videoSource");
     const backBtn = document.getElementById("backBtn");
+
+    let oplayerInstance;
 
     fetch(jsonUrl)
       .then(res => res.json())
@@ -190,8 +169,6 @@
     async function showVideoScreen(videoData) {
       const token = await generateToken();
       const videoUrl = `${workerBase}${videoData.id}&token=${token}`;
-      videoSource.src = videoUrl;
-      videoPlayer.load();
 
       videoTitle.textContent = videoData.title;
 
@@ -206,15 +183,29 @@
       mainHeading.classList.add("hidden");
       screen2.classList.remove("hidden");
       window.scrollTo({ top: 0, behavior: 'smooth' });
+
+      if (oplayerInstance) {
+        oplayerInstance.destroy();
+      }
+
+      oplayerInstance = new window.OPlayer.OPlayer({
+        source: {
+          src: videoUrl,
+          type: "video/mp4"
+        },
+        container: '#oplayer',
+        autoplay: false,
+        poster: videoData.thumbnail,
+        theme: '#00c853',
+        controls: true
+      });
     }
 
     backBtn.onclick = () => {
-      player.pause();
+      if (oplayerInstance) oplayerInstance.destroy();
       screen2.classList.add("hidden");
       screen1.classList.remove("hidden");
       mainHeading.classList.remove("hidden");
-      videoSource.src = "";
-      player.load();
     };
 
     async function generateToken() {
