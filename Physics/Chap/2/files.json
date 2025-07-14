@@ -1,0 +1,81 @@
+{
+  "videos": [
+    {
+      "id": "MSM01",
+      "title": "Vector 1",
+      "thumbnail": "https://i.ibb.co/DPFFVQFj/20250714-204443.jpg",
+      "pdfUrl": "https://example.com/notes1.pdf",
+      "notice": "Important: For educational use only."
+    },
+    {
+      "id": "MSM02",
+      "title": "Vector 2",
+      "thumbnail": "https://i.ibb.co/ZR9ZRjY3/20250714-204450.jpg",
+      "pdfUrl": "https://example.com/notes2.pdf",
+      "notice": "Important: For educational use only."
+    },
+    {
+      "id": "MSM03",
+      "title": "Vector 3",
+      "thumbnail": "https://i.ibb.co/QjJgkQ8L/20250714-204817.jpg",
+      "pdfUrl": "https://example.com/notes3.pdf",
+      "notice": "Important: For educational use only."
+    },
+    {
+      "id": "MSM04",
+      "title": "Vector 4",
+      "thumbnail": "https://i.ibb.co/prRcFNhD/20250714-204459.jpg",
+      "pdfUrl": "https://example.com/notes4.pdf",
+      "notice": "Important: For educational use only."
+    },
+    {
+      "id": "MSM05",
+      "title": "Vector 5",
+      "thumbnail": "https://i.ibb.co/cS9rJMbj/20250714-204513.jpg",
+      "pdfUrl": "https://example.com/notes5.pdf",
+      "notice": "Important: For educational use only."
+    },
+    {
+      "id": "MSM06",
+      "title": "Vector 6",
+      "thumbnail": "https://i.ibb.co/ccwHfT1h/20250714-204521.jpg",
+      "pdfUrl": "https://example.com/notes6.pdf",
+      "notice": "Important: For educational use only."
+    },
+    {
+      "id": "MSM07",
+      "title": "Vector 7",
+      "thumbnail": "https://i.ibb.co/kVDt1QVm/20250714-204527.jpg",
+      "pdfUrl": "https://example.com/notes7.pdf",
+      "notice": "Important: For educational use only."
+    },
+    {
+      "id": "MSM08",
+      "title": "Vector 8",
+      "thumbnail": "https://i.ibb.co/mCrg95vQ/20250714-204535.jpg",
+      "pdfUrl": "https://example.com/notes8.pdf",
+      "notice": "Important: For educational use only."
+    },
+    {
+      "id": "MSM09",
+      "title": "Vector 9",
+      "thumbnail": "https://i.ibb.co/4RGVF55m/20250714-204540.jpg",
+      "pdfUrl": "https://example.com/notes9.pdf",
+      "notice": "Important: For educational use only."
+    },
+    {
+      "id": "MSM10",
+      "title": "Vector 10",
+      "thumbnail": "https://i.ibb.co/0Vp63rq8/20250714-204545.jpg",
+      "pdfUrl": "https://example.com/notes10.pdf",
+      "notice": "Important: For educational use only."
+    },
+    {
+      "id": "MSM11",
+      "title": "Vector Summary Lecture",
+      "thumbnail": "https://i.ibb.co/jPFJ6jHQ/20250714-204700.jpg",
+      "pdfUrl": "https://example.com/notes11.pdf",
+      "notice": "Important: For educational use only."
+    }
+  ]
+}
