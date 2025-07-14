@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <title>Structure Organisation in Animal</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -72,7 +73,7 @@
       gap: 8px;
     }
 
-    video {
+    video.plyr {
       width: 100%;
       max-height: 60vh;
       border-radius: 10px;
@@ -80,7 +81,7 @@
     }
 
     @media screen and (orientation: landscape) {
-      video { max-height: 100vh; }
+      video.plyr { max-height: 100vh; }
       #screen2 { padding: 0; border-radius: 0; }
       #videoTitle, #notesBtn { display: none; }
     }
@@ -121,18 +122,31 @@
     <div id="videoTitle"></div>
     <video
       id="videoPlayer"
+      class="plyr"
       controls
-      controlsList="nodownload"
-      disablePictureInPicture
-      preload="auto"
       playsinline
+      preload="auto"
+      disablePictureInPicture
+      controlsList="nodownload"
     >
       <source id="videoSource" src="" type="video/mp4">
     </video>
     <a id="notesBtn" href="#" target="_blank" class="hidden">Download Notes</a>
   </div>
 
+  <script src="https://cdn.plyr.io/3.7.8/plyr.polyfilled.js"></script>
   <script>
+    const player = new Plyr('#videoPlayer', {
+      controls: [
+        'play-large', 'play', 'rewind', 'fast-forward',
+        'progress', 'current-time', 'mute', 'settings',
+        'pip', 'airplay', 'fullscreen'
+      ],
+      settings: ['quality', 'speed'],
+      tooltips: { controls: true },
+      i18n: { rewind: "10s पीछे", fastForward: "10s आगे" },
+    });
+
     const jsonUrl = "https://raw.githubusercontent.com/ydvkrn/Neet2026/main/Biology/Zoology/Chap/1/files.json";
     const workerBase = "https://yellow-haze-a511.btfcompany1.workers.dev/?id=";
 
@@ -195,12 +209,12 @@
     }
 
     backBtn.onclick = () => {
-      videoPlayer.pause();
+      player.pause();
       screen2.classList.add("hidden");
       screen1.classList.remove("hidden");
       mainHeading.classList.remove("hidden");
       videoSource.src = "";
-      videoPlayer.load();
+      player.load();
     };
 
     async function generateToken() {
