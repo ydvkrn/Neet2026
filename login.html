@@ -1,169 +1,179 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Secure Neon Login</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Secure Login</title>
   <style>
     * {
+      margin: 0;
+      padding: 0;
       box-sizing: border-box;
+      font-family: 'Arial', sans-serif;
     }
 
     body {
-      margin: 0;
-      padding: 0;
-      background: #0b0b0b;
-      font-family: 'Segoe UI', sans-serif;
-      color: white;
+      background: #121212;
+      color: #ffffff;
       display: flex;
       justify-content: center;
       align-items: center;
-      height: 100vh;
+      min-height: 100vh;
+      overflow: hidden;
     }
 
     .container {
-      width: 90%;
+      background: #1a1a1a;
+      padding: 40px;
+      border-radius: 15px;
+      box-shadow: 0 0 20px rgba(0, 255, 255, 0.2);
+      width: 100%;
       max-width: 400px;
-      background: #161616;
-      padding: 30px 20px;
-      border-radius: 16px;
-      box-shadow: 0 0 12px #ffffff44;
       text-align: center;
-      position: relative;
-    }
-
-    .profile-img {
-      width: 100px;
-      height: 100px;
-      object-fit: cover;
-      border-radius: 50%;
-      margin: 0 auto 20px;
-      display: block;
-      box-shadow: 0 0 10px #ffffff66;
-      border: 2px solid white;
     }
 
     h2 {
-      margin-bottom: 20px;
-      font-size: 26px;
-      color: white;
+      font-size: 2.5rem;
+      margin-bottom: 30px;
+      color: #00ffcc;
+      text-shadow: 0 0 10px #00ffcc, 0 0 20px #00ffcc;
     }
 
-    input {
+    .input-group {
+      margin-bottom: 20px;
+    }
+
+    input[type="text"],
+    input[type="password"] {
       width: 100%;
-      padding: 12px 15px;
-      margin: 10px 0;
-      background: transparent;
-      border: 2px solid white;
+      padding: 12px;
+      background: #222;
+      border: 1px solid #00ffcc;
       border-radius: 8px;
-      font-size: 16px;
-      color: white;
+      color: #fff;
+      font-size: 1rem;
+      outline: none;
+      transition: box-shadow 0.3s ease;
+    }
+
+    input[type="text"]:focus,
+    input[type="password"]:focus {
+      box-shadow: 0 0 10px #00ffcc;
     }
 
     input::placeholder {
-      color: #bbb;
+      color: #888;
     }
 
-    button[type="submit"] {
+    button {
       width: 100%;
       padding: 12px;
-      background: white;
-      color: black;
-      font-weight: bold;
-      font-size: 16px;
+      background: #00ffcc;
       border: none;
       border-radius: 8px;
-      margin-top: 10px;
+      color: #121212;
+      font-size: 1.1rem;
+      font-weight: bold;
       cursor: pointer;
-      box-shadow: 0 0 10px white;
+      transition: background 0.3s ease, transform 0.2s ease;
+    }
+
+    button:hover {
+      background: #00ccaa;
+      transform: translateY(-2px);
     }
 
     .join-now {
       margin-top: 20px;
-      display: block;
-      width: 100%;
-      padding: 12px;
-      border: 2px solid white;
-      color: white;
-      text-decoration: none;
-      border-radius: 8px;
-      font-weight: bold;
-      box-shadow: 0 0 8px #ffffff55;
-      transition: all 0.2s ease-in-out;
+      background: transparent;
+      border: 2px solid #00ffcc;
+      color: #00ffcc;
     }
 
     .join-now:hover {
-      background: white;
-      color: black;
+      background: #00ffcc;
+      color: #121212;
     }
 
-    .msg {
-      margin-top: 12px;
-      font-weight: bold;
-      color: #ff4444;
+    #result {
+      margin-top: 20px;
+      font-size: 1rem;
       min-height: 24px;
     }
 
-    @media screen and (max-width: 400px) {
+    .success {
+      color: #00ffcc;
+      text-shadow: 0 0 5px #00ffcc;
+    }
+
+    .error {
+      color: #ff3333;
+      text-shadow: 0 0 5px #ff3333;
+    }
+
+    @media (max-width: 480px) {
       .container {
-        padding: 25px 15px;
+        padding: 20px;
+        margin: 20px;
+      }
+
+      h2 {
+        font-size: 2rem;
       }
     }
   </style>
 </head>
 <body>
-
   <div class="container">
-    <!-- 🔵 Circle Profile Image -->
-    <img src="https://i.postimg.cc/VLCxN7bz/image.jpg" alt="Profile" class="profile-img">
-
-    <h2>Login</h2>
-
+    <h2>Secure Login</h2>
     <form id="loginForm">
-      <input type="text" id="username" placeholder="Username" required />
-      <input type="password" id="key" placeholder="Key" required />
+      <div class="input-group">
+        <input type="text" name="username" placeholder="Username" required>
+      </div>
+      <div class="input-group">
+        <input type="password" name="key" placeholder="Password" required>
+      </div>
       <button type="submit">Login</button>
-      <div class="msg" id="message"></div>
+      <div id="result"></div>
+      <button type="button" class="join-now" onclick="window.location.href='signup.html'">Join Now</button>
     </form>
-
-    <!-- 🟣 Join Now Button -->
-    <a href="batch.html" class="join-now">Join Now</a>
   </div>
 
   <script>
-    const form = document.getElementById("loginForm");
-    const msg = document.getElementById("message");
+    const form = document.getElementById('loginForm');
+    const result = document.getElementById('result');
 
-    form.addEventListener("submit", async (e) => {
+    form.addEventListener('submit', async (e) => {
       e.preventDefault();
-      const username = document.getElementById("username").value.trim();
-      const key = document.getElementById("key").value.trim();
-      msg.textContent = "Checking...";
+      const data = {
+        username: form.username.value,
+        key: form.key.value
+      };
 
       try {
-        const res = await fetch("https://test.btfcompany1.workers.dev/", {
+        const res = await fetch("https://test.btfcompany1.workers.dev", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ username, key })
+          body: JSON.stringify(data)
         });
 
-        const contentType = res.headers.get("content-type") || "";
-        if (!contentType.includes("application/json")) throw new Error("Invalid JSON");
+        const json = await res.json();
 
-        const data = await res.json();
-
-        if (data.status === "success") {
-          localStorage.setItem("loggedIn", "true");
-          window.location.href = "home.html";
+        if (json.status === "success") {
+          result.className = "success";
+          result.textContent = json.message;
+          setTimeout(() => {
+            window.location.href = "lecture.html";
+          }, 1000);
         } else {
-          msg.textContent = "❌ " + (data.message || "Invalid Login");
+          result.className = "error";
+          result.textContent = json.message;
         }
       } catch (err) {
-        msg.textContent = "❌ Something went wrong.";
-        console.error(err);
+        result.className = "error";
+        result.textContent = "Network error: " + err.message;
       }
     });
   </script>
-
 </body>
 </html>
