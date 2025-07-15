@@ -5,162 +5,152 @@
   <title>Secure Neon Login</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
+    * {
+      box-sizing: border-box;
+    }
+
     body {
-      background-color: #0a0a0a;
-      color: white;
+      margin: 0;
+      padding: 0;
+      background: #0b0b0b;
       font-family: 'Segoe UI', sans-serif;
+      color: white;
       display: flex;
       justify-content: center;
       align-items: center;
       height: 100vh;
-      flex-direction: column;
     }
 
-    .login-box {
-      background: #151515;
-      padding: 30px;
-      border-radius: 16px;
-      box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+    .container {
       width: 90%;
       max-width: 400px;
-      position: relative;
+      background: #161616;
+      padding: 30px 20px;
+      border-radius: 16px;
+      box-shadow: 0 0 12px #ffffff44;
       text-align: center;
+      position: relative;
     }
 
-    .image-top {
+    .profile-img {
       width: 100px;
       height: 100px;
+      object-fit: cover;
       border-radius: 50%;
       margin: 0 auto 20px;
+      display: block;
+      box-shadow: 0 0 10px #ffffff66;
       border: 2px solid white;
-      background: url('https://i.postimg.cc/VLCxN7bz/image.jpg') center/cover no-repeat;
-      box-shadow: 0 0 15px white;
+    }
+
+    h2 {
+      margin-bottom: 20px;
+      font-size: 26px;
+      color: white;
     }
 
     input {
       width: 100%;
       padding: 12px 15px;
       margin: 10px 0;
+      background: transparent;
       border: 2px solid white;
       border-radius: 8px;
-      background: transparent;
-      color: white;
       font-size: 16px;
+      color: white;
     }
 
     input::placeholder {
-      color: #ccc;
+      color: #bbb;
     }
 
-    .login-btn {
+    button[type="submit"] {
       width: 100%;
       padding: 12px;
       background: white;
       color: black;
-      border: none;
-      border-radius: 8px;
       font-weight: bold;
       font-size: 16px;
-      box-shadow: 0 0 12px white;
-      cursor: pointer;
+      border: none;
+      border-radius: 8px;
       margin-top: 10px;
-    }
-
-    .msg {
-      font-weight: bold;
-      font-size: 14px;
-      margin-top: 12px;
-      color: #ffffff;
-    }
-
-    .loader {
-      border: 4px solid transparent;
-      border-top: 4px solid white;
-      border-right: 4px solid white;
-      border-radius: 50%;
-      width: 30px;
-      height: 30px;
-      margin: 15px auto;
-      animation: spin 1s linear infinite;
-      display: none;
-    }
-
-    @keyframes spin {
-      to { transform: rotate(360deg); }
+      cursor: pointer;
+      box-shadow: 0 0 10px white;
     }
 
     .join-now {
-      position: fixed;
-      bottom: 20px;
-      width: 90%;
-      max-width: 400px;
-      background: transparent;
+      margin-top: 20px;
+      display: block;
+      width: 100%;
+      padding: 12px;
       border: 2px solid white;
       color: white;
-      font-weight: bold;
-      padding: 12px;
-      border-radius: 8px;
       text-decoration: none;
-      text-align: center;
-      display: block;
-      box-shadow: 0 0 10px white;
+      border-radius: 8px;
+      font-weight: bold;
+      box-shadow: 0 0 8px #ffffff55;
+      transition: all 0.2s ease-in-out;
     }
 
     .join-now:hover {
       background: white;
       color: black;
     }
+
+    .msg {
+      margin-top: 12px;
+      font-weight: bold;
+      color: #ff4444;
+      min-height: 24px;
+    }
+
+    @media screen and (max-width: 400px) {
+      .container {
+        padding: 25px 15px;
+      }
+    }
   </style>
 </head>
 <body>
 
-  <div class="login-box">
-    <div class="image-top"></div>
+  <div class="container">
+    <!-- 🔵 Circle Profile Image -->
+    <img src="https://i.postimg.cc/VLCxN7bz/image.jpg" alt="Profile" class="profile-img">
+
+    <h2>Login</h2>
+
     <form id="loginForm">
       <input type="text" id="username" placeholder="Username" required />
       <input type="password" id="key" placeholder="Key" required />
-      <button type="submit" class="login-btn">Login</button>
-      <div class="loader" id="loader"></div>
-      <p class="msg" id="message"></p>
+      <button type="submit">Login</button>
+      <div class="msg" id="message"></div>
     </form>
-  </div>
 
-  <a href="batch.html" class="join-now">Join Now</a>
+    <!-- 🟣 Join Now Button -->
+    <a href="batch.html" class="join-now">Join Now</a>
+  </div>
 
   <script>
     const form = document.getElementById("loginForm");
     const msg = document.getElementById("message");
-    const loader = document.getElementById("loader");
-
-    let sessionId = localStorage.getItem("sessionId") || crypto.randomUUID();
-    localStorage.setItem("sessionId", sessionId);
-
-    // auto redirect if already logged in
-    if (localStorage.getItem("loggedIn") === "true") {
-      window.location.href = "home.html";
-    }
 
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
       const username = document.getElementById("username").value.trim();
       const key = document.getElementById("key").value.trim();
-      msg.textContent = "";
-      loader.style.display = "block";
+      msg.textContent = "Checking...";
 
       try {
-        const res = await fetch("https://test.btfcompany1.workers.dev/", {
+        const res = await fetch("https://btflogin.btfcompany1.workers.dev/", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ username, key, sessionId })
+          body: JSON.stringify({ username, key })
         });
 
         const contentType = res.headers.get("content-type") || "";
-        if (!contentType.includes("application/json")) {
-          throw new Error("Invalid JSON response");
-        }
+        if (!contentType.includes("application/json")) throw new Error("Invalid JSON");
 
         const data = await res.json();
-        loader.style.display = "none";
 
         if (data.status === "success") {
           localStorage.setItem("loggedIn", "true");
@@ -169,11 +159,11 @@
           msg.textContent = "❌ " + (data.message || "Invalid Login");
         }
       } catch (err) {
-        loader.style.display = "none";
         msg.textContent = "❌ Something went wrong.";
         console.error(err);
       }
     });
   </script>
+
 </body>
 </html>
