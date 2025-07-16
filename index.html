@@ -8,7 +8,7 @@
   <!-- Hide entire body until auth is verified -->
   <style>
     body {
-      display: none;
+      display: none; /* Hidden until auth success */
       background-color: #121212;
       color: white;
       font-family: Arial, sans-serif;
@@ -73,45 +73,61 @@
     }
   </style>
 
-  <!-- Load auth.js -->
-  <script src="auth.js"></script>
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/11.10.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/11.10.0/firebase-auth-compat.js"></script>
 
-  <!-- Auth Check -->
+  <!-- Auth Check Script -->
   <script>
-    // Wait for DOM
-    document.addEventListener("DOMContentLoaded", function () {
-      try {
-        // Check if isLoggedIn function exists
-        if (typeof isLoggedIn !== "function") {
-          throw new Error("auth.js missing or corrupted");
+    window.addEventListener("load", () => {
+      const checkAuth = () => {
+        if (!firebase.apps.length) {
+          firebase.initializeApp({
+            apiKey: "AIzaSyBosCBTgIDeRabFMkuqS_cbjkdHDcegFJw",
+            authDomain: "msmneet1.firebaseapp.com",
+            projectId: "msmneet1",
+            storageBucket: "msmneet1.appspot.com",
+            messagingSenderId: "920361933770",
+            appId: "1:920361933770:web:4dba802da04a8548348d33"
+          });
         }
 
-        // Call isLoggedIn from auth.js
-        if (isLoggedIn()) {
-          document.body.style.display = "block"; // Show content
-        } else {
-          window.location.href = "login.html"; // Redirect to login
+        firebase.auth().onAuthStateChanged((user) => {
+          if (!user) {
+            window.location.href = "login.html";
+          } else {
+            console.log("✅ Logged in:", user.email);
+            document.body.style.display = "block"; // Show the page
+          }
+        });
+      };
+
+      // Wait for Firebase to be loaded
+      const waitForFirebase = setInterval(() => {
+        if (typeof firebase !== "undefined") {
+          clearInterval(waitForFirebase);
+          checkAuth();
         }
-      } catch (e) {
-        console.error("Authentication Failed:", e.message);
-        window.location.href = "login.html";
-      }
+      }, 100);
     });
   </script>
 </head>
-<body oncontextmenu="return false">
+
+<body oncontextmenu="return false"> <!-- Disable Right-Click -->
+
   <!-- Header Section -->
   <div class="header">
     <img src="https://upload.wikimedia.org/wikipedia/commons/6/6e/A._P._J._Abdul_Kalam.jpg" alt="Logo" class="logo">
     STUDY - Neet 2026 📚
   </div>
 
-  <!-- Small Header Below Entertainment -->
+  <!-- Small Header -->
   <div class="small-header">Powered by BTF Group</div>
 
-  <!-- Video List Container -->
+  <!-- Video List -->
   <div id="videoContainer" class="video-container"></div>
 
+  <!-- Video JSON Fetch -->
   <script>
     const jsonURL = "https://raw.githubusercontent.com/ydvkrn/Neet2026/refs/heads/main/home.json";
 
@@ -124,20 +140,23 @@
       .catch(error => console.error("JSON Load Error:", error));
 
     function displayVideos(videos) {
-      let container = document.getElementById("videoContainer");
+      const container = document.getElementById("videoContainer");
       container.innerHTML = "";
 
       videos.forEach(video => {
-        let videoBox = document.createElement("div");
+        const videoBox = document.createElement("div");
         videoBox.classList.add("video-box");
+
         videoBox.innerHTML = `
           <img src="${video.thumbnail}" alt="Thumbnail">
           <div class="video-title">${video.title}</div>
         `;
+
         videoBox.onclick = () => window.location.href = video.redirect;
         container.appendChild(videoBox);
       });
     }
   </script>
+
 </body>
 </html>
