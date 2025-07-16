@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <title>Structure Organisation in Animal</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  
+
   <!-- Temporarily hide body till login check -->
   <style id="hideBodyStyle">
     body { display: none; background: #000; color: white; }
@@ -32,16 +32,15 @@
 
     firebase.auth().onAuthStateChanged((user) => {
       if (!user) {
-        window.location.href = "/Neet2026/login.html";
+        window.location.href = "/Neet2026/login.html"; // ✅ FIXED Redirect path
       } else {
         document.getElementById("hideBodyStyle")?.remove();
-        document.body.style.display = "block";
-        console.log("✅ Logged in as", user.email);
+        document.body.style.display = "block"; // ✅ Show after login
+        initApp(); // ✅ Call your loader & video code
       }
     });
   </script>
 
-  <!-- Your Existing Style Starts Here -->
   <style>
     body {
       font-family: 'Poppins', sans-serif;
@@ -52,16 +51,7 @@
       min-height: 100vh;
       overflow: auto;
     }
-    /* ... बाकी सब वही रहने दो ... */
-    body {
-      font-family: 'Poppins', sans-serif;
-      background: #000;
-      color: white;
-      margin: 0;
-      padding: 20px;
-      min-height: 100vh;
-      overflow: auto;
-    }
+
     .hidden { display: none !important; }
 
     h2 {
@@ -78,16 +68,11 @@
     }
 
     .video-item {
-      background: transparent;
-      border-radius: 0;
-      padding: 0;
-      box-shadow: none;
       cursor: pointer;
     }
 
     .thumbnail {
       width: 100%;
-      border-radius: 0;
       aspect-ratio: 16/9;
       object-fit: cover;
     }
@@ -97,7 +82,6 @@
       margin: 4px 0 12px;
       text-align: left;
       padding: 0 4px;
-      color: white;
     }
 
     #screen2 {
@@ -107,7 +91,6 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
     }
 
     #videoTitle {
@@ -167,268 +150,150 @@
       justify-content: center;
       min-height: 80vh;
       height: 100%;
-      max-height: 100vh;
       width: 100%;
-      position: relative;
-      overflow: visible;
     }
 
     .loader {
-      --path: white;
-      --dot: #00ffcc;
-      --duration: 3s;
-      width: min(64px, 15vw);
-      height: min(64px, 15vw);
-      position: relative;
-      display: inline-block;
-      margin: 10px auto;
-    }
-
-    .loader:before {
-      content: "";
-      width: 10px;
-      height: 10px;
+      width: 64px;
+      height: 64px;
+      border: 6px solid #00ffcc;
+      border-top: 6px solid transparent;
       border-radius: 50%;
-      position: absolute;
-      background: var(--dot);
-      top: 37px;
-      left: 19px;
-      transform: translate(-18px, -18px);
-      animation: dotRect var(--duration) ease-in-out infinite;
+      animation: spin 1s linear infinite;
     }
 
-    .loader svg {
-      width: 100%;
-      height: 100%;
-      display: block;
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
     }
-
-    .loader svg polygon,
-    .loader svg rect,
-    .loader svg circle {
-      fill: none;
-      stroke: var(--path);
-      stroke-width: 10px;
-      stroke-linejoin: round;
-      stroke-linecap: round;
-    }
-
-    .loader svg polygon {
-      stroke-dasharray: 145 76 145 76;
-      animation: pathTriangle var(--duration) ease-in-out infinite;
-    }
-
-    .loader svg rect {
-      stroke-dasharray: 192 64 192 64;
-      animation: pathRect var(--duration) ease-in-out infinite;
-    }
-
-    .loader svg circle {
-      stroke-dasharray: 150 50 150 50;
-      stroke-dashoffset: 75;
-      animation: pathCircle var(--duration) ease-in-out infinite;
-    }
-
-    .loader.triangle {
-      width: min(72px, 16vw);
-    }
-
-    .loader.triangle:before {
-      left: 21px;
-      transform: translate(-10px, -18px);
-      animation: dotTriangle var(--duration) ease-in-out infinite;
-    }
-
-    @keyframes pathTriangle {
-      33% { stroke-dashoffset: 74; }
-      66% { stroke-dashoffset: 147; }
-      100% { stroke-dashoffset: 221; }
-    }
-
-    @keyframes dotTriangle {
-      33% { transform: translate(0, 0); }
-      66% { transform: translate(10px, -18px); }
-      100% { transform: translate(-10px, -18px); }
-    }
-
-    @keyframes pathRect {
-      25% { stroke-dashoffset: 64; }
-      50% { stroke-dashoffset: 128; }
-      75% { stroke-dashoffset: 192; }
-      100% { stroke-dashoffset: 256; }
-    }
-
-    @keyframes dotRect {
-      25% { transform: translate(0, 0); }
-      50% { transform: translate(18px, -18px); }
-      75% { transform: translate(0, -36px); }
-      100% { transform: translate(-18px, -18px); }
-    }
-
-    @keyframes pathCircle {
-      25% { stroke-dashoffset: 125; }
-      50% { stroke-dashoffset: 175; }
-      75% { stroke-dashoffset: 225; }
-      100% { stroke-dashoffset: 275; }
-    }
-<script src="auth.js"></script>
+  </style>
 </head>
+
 <body oncontextmenu="return false">
   <h2 id="mainHeading">Structure Organisation in Animal</h2>
 
-  <div id="screen1Loader">
-    <div class="loader">
-      <svg viewBox="0 0 80 80"><circle cx="40" cy="40" r="32"></circle></svg>
-    </div>
-    <div class="loader triangle">
-      <svg viewBox="0 0 86 80"><polygon points="43 8 79 72 7 72"></polygon></svg>
-    </div>
-    <div class="loader">
-      <svg viewBox="0 0 80 80"><rect x="8" y="8" width="64" height="64"></rect></svg>
-    </div>
-  </div>
-
+  <div id="screen1Loader"><div class="loader"></div></div>
   <div id="screen1" class="video-list hidden"></div>
 
   <div id="screen2" class="hidden">
-    <div id="backBtn" class="hidden"><strong></strong></div>
+    <div id="backBtn" class="hidden"><strong>←</strong></div>
     <div id="videoTitle" class="hidden"></div>
-    <video id="videoPlayer" class="plyr hidden" playsinline preload="auto" disablePictureInPicture controlsList="nodownload">
+    <video id="videoPlayer" class="plyr hidden" playsinline preload="auto" controls>
       <source id="videoSource" src="" type="video/mp4">
     </video>
     <a id="notesBtn" href="#" target="_blank" class="hidden">
-      <img src="https://i.postimg.cc/3xzNQhMV/pdf-icon-4.png" alt="PDF Icon" width="20">
-      Download Notes
+      📄 Download Notes
     </a>
     <div id="noticeBar" class="hidden">
       <span id="noticeText"></span>
     </div>
   </div>
 
+  <!-- Plyr JS -->
   <script src="https://cdn.plyr.io/3.7.8/plyr.polyfilled.js"></script>
+
+  <!-- App Script -->
   <script>
-    const player = new Plyr('#videoPlayer', {
-      controls: ['play', 'rewind', 'fast-forward', 'progress', 'current-time', 'mute', 'settings', 'airplay', 'fullscreen'],
-      tooltips: { controls: true }
-    });
+    function initApp() {
+      const jsonUrl = "https://raw.githubusercontent.com/ydvkrn/Neet2026/main/Biology/Zoology/Chap/1/files.json";
+      const workerBase = "https://yellow-haze-a511.btfcompany1.workers.dev/?id=";
 
-    player.on('enterfullscreen', () => {
-      if (screen.orientation && screen.orientation.lock) {
-        screen.orientation.lock('landscape').catch(() => {});
+      const screen1 = document.getElementById("screen1");
+      const screen2 = document.getElementById("screen2");
+      const screen1Loader = document.getElementById("screen1Loader");
+      const mainHeading = document.getElementById("mainHeading");
+      const videoTitle = document.getElementById("videoTitle");
+      const notesBtn = document.getElementById("notesBtn");
+      const videoPlayer = document.getElementById("videoPlayer");
+      const videoSource = document.getElementById("videoSource");
+      const backBtn = document.getElementById("backBtn");
+      const noticeBar = document.getElementById("noticeBar");
+      const noticeText = document.getElementById("noticeText");
+
+      const player = new Plyr('#videoPlayer');
+
+      function loadVideos() {
+        fetch(jsonUrl)
+          .then(res => res.json())
+          .then(data => {
+            screen1Loader.classList.add("hidden");
+            screen1.classList.remove("hidden");
+            screen1.innerHTML = "";
+            data.videos.forEach(vid => {
+              const item = document.createElement("div");
+              item.className = "video-item";
+              item.onclick = () => showVideoScreen(vid);
+
+              item.innerHTML = `
+                <img src="${vid.thumbnail}" class="thumbnail">
+                <div class="video-title">${vid.title}</div>
+              `;
+
+              screen1.appendChild(item);
+            });
+          }).catch(() => {
+            screen1.innerHTML = "<div>❌ Video load failed</div>";
+            screen1Loader.classList.add("hidden");
+          });
       }
-    });
 
-    const jsonUrl = "https://raw.githubusercontent.com/ydvkrn/Neet2026/main/Biology/Zoology/Chap/1/files.json";
-    const workerBase = "https://yellow-haze-a511.btfcompany1.workers.dev/?id=";
+      function showVideoScreen(vid) {
+        screen1.classList.add("hidden");
+        screen2.classList.remove("hidden");
+        mainHeading.classList.add("hidden");
 
-    const screen1 = document.getElementById("screen1");
-    const screen2 = document.getElementById("screen2");
-    const screen1Loader = document.getElementById("screen1Loader");
-    const mainHeading = document.getElementById("mainHeading");
-    const videoTitle = document.getElementById("videoTitle");
-    const notesBtn = document.getElementById("notesBtn");
-    const videoPlayer = document.getElementById("videoPlayer");
-    const videoSource = document.getElementById("videoSource");
-    const backBtn = document.getElementById("backBtn");
-    const noticeBar = document.getElementById("noticeBar");
-    const noticeText = document.getElementById("noticeText");
-
-    async function loadVideos() {
-      try {
-        const res = await fetch(jsonUrl);
-        const data = await res.json();
-        screen1Loader.classList.add("hidden");
-        screen1.classList.remove("hidden");
-        screen1.innerHTML = "";
-        data.videos.forEach(vid => {
-          const item = document.createElement("div");
-          item.className = "video-item";
-          item.onclick = () => showVideoScreen(vid);
-
-          const img = document.createElement("img");
-          img.src = vid.thumbnail;
-          img.className = "thumbnail";
-
-          const title = document.createElement("div");
-          title.className = "video-title";
-          title.textContent = vid.title;
-
-          item.appendChild(img);
-          item.appendChild(title);
-          screen1.appendChild(item);
+        generateToken().then(token => {
+          const videoUrl = `${workerBase}${vid.id}&token=${token}`;
+          videoSource.src = videoUrl;
+          player.source = {
+            type: 'video',
+            sources: [{ src: videoUrl, type: 'video/mp4' }]
+          };
+          player.play();
         });
-      } catch {
-        screen1.innerHTML = '<div class="error">❌ वीडियो लोड करने में त्रुटि।</div>';
-        screen1Loader.classList.add("hidden");
+
+        videoTitle.textContent = vid.title;
+        videoTitle.classList.remove("hidden");
+        videoPlayer.classList.remove("hidden");
+        backBtn.classList.remove("hidden");
+
+        if (vid.pdfUrl?.trim()) {
+          notesBtn.href = vid.pdfUrl;
+          notesBtn.classList.remove("hidden");
+        }
+        if (vid.notice?.trim()) {
+          noticeText.textContent = vid.notice;
+          noticeBar.classList.remove("hidden");
+        }
       }
-    }
 
-    setTimeout(loadVideos, 3000);
-
-    async function showVideoScreen(videoData) {
-      history.pushState({ screen: 'screen2' }, ''); // Mobile back support
-
-      screen1.classList.add("hidden");
-      mainHeading.classList.add("hidden");
-      screen2.classList.remove("hidden");
-
-      const token = await generateToken();
-      const videoUrl = `${workerBase}${videoData.id}&token=${token}`;
-
-      videoSource.src = videoUrl;
-      player.source = {
-        type: 'video',
-        sources: [{ src: videoUrl, type: 'video/mp4' }]
+      backBtn.onclick = () => {
+        history.back();
       };
 
-      videoPlayer.classList.remove("hidden");
-      videoTitle.textContent = videoData.title;
-      videoTitle.classList.remove("hidden");
-      backBtn.classList.remove("hidden");
+      window.addEventListener("popstate", () => {
+        player.pause();
+        screen2.classList.add("hidden");
+        screen1.classList.remove("hidden");
+        mainHeading.classList.remove("hidden");
+        videoTitle.classList.add("hidden");
+        videoPlayer.classList.add("hidden");
+        backBtn.classList.add("hidden");
+        notesBtn.classList.add("hidden");
+        noticeBar.classList.add("hidden");
+      });
 
-      if (videoData.pdfUrl?.trim()) {
-        notesBtn.href = videoData.pdfUrl;
-        notesBtn.classList.remove("hidden");
+      async function generateToken() {
+        const SECRET = "BTFxMSM0ZoologyChap1";
+        const timestamp = Math.floor(Date.now() / 1000);
+        const msg = timestamp + SECRET;
+        const hashBuffer = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(msg));
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+        const hashHex = hashArray.map(b => b.toString(16).padStart(2, "0")).join("");
+        return `${timestamp}.${hashHex}`;
       }
 
-      if (videoData.notice?.trim()) {
-        noticeText.textContent = videoData.notice;
-        noticeBar.classList.remove("hidden");
-      }
-
-      player.play();
-    }
-
-    backBtn.onclick = () => {
-      history.back(); // Go back via history API
-    };
-
-    window.addEventListener("popstate", () => {
-      if (!screen1.classList.contains("hidden")) return;
-      player.pause();
-      player.source = null;
-      videoSource.src = "";
-
-      screen2.classList.add("hidden");
-      screen1.classList.remove("hidden");
-      mainHeading.classList.remove("hidden");
-
-      videoPlayer.classList.add("hidden");
-      videoTitle.classList.add("hidden");
-      notesBtn.classList.add("hidden");
-      backBtn.classList.add("hidden");
-      noticeBar.classList.add("hidden");
-    });
-
-    async function generateToken() {
-      const SECRET = "BTFxMSM0ZoologyChap1";
-      const timestamp = Math.floor(Date.now() / 1000);
-      const msg = timestamp + SECRET;
-
-      const hashBuffer = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(msg));
-      const hashArray = Array.from(new Uint8Array(hashBuffer));
-      const hashHex = hashArray.map(b => b.toString(16).padStart(2, "0")).join("");
-      return `${timestamp}.${hashHex}`;
+      setTimeout(loadVideos, 3000); // Delay to show loader
     }
   </script>
 </body>
