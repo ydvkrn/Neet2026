@@ -1,6 +1,6 @@
 // auth.js
 
-// Load Firebase SDK
+// Firebase SDK load
 document.write('<script src="https://www.gstatic.com/firebasejs/11.10.0/firebase-app-compat.js"><\/script>');
 document.write('<script src="https://www.gstatic.com/firebasejs/11.10.0/firebase-auth-compat.js"><\/script>');
 
@@ -21,15 +21,13 @@ window.addEventListener("load", () => {
       if (!user) {
         window.location.href = "login.html";
       } else {
-        console.log("✅ Logged in:", user.email);
-        // 👇 यही जरूरी है
-        document.documentElement.style.display = "block";
+        document.body.style.display = "block"; // ✅ Only show content if logged in
       }
     });
   };
 
   const waitForFirebase = setInterval(() => {
-    if (typeof firebase !== "undefined" && firebase.auth) {
+    if (typeof firebase !== "undefined") {
       clearInterval(waitForFirebase);
       checkAuth();
     }
