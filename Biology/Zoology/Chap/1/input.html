@@ -32,14 +32,29 @@
 
     firebase.auth().onAuthStateChanged((user) => {
       if (!user) {
-        window.location.href = "https://ydvkrn.github.io/Neet2026/login.html";
+        // Dynamic login redirect based on domain
+        const host = window.location.hostname;
+        let loginPath = "";
+
+        if (host.includes("github.io")) {
+          loginPath = "/Neet2026/login.html";
+        } else {
+          loginPath = "/login.html";
+        }
+
+        window.location.href = loginPath;
       } else {
         document.getElementById("hideBodyStyle")?.remove();
         document.body.style.display = "block";
-        setTimeout(loadVideos, 3000); // only load videos if logged in
+
+        // Load videos or data after login
+        if (typeof loadVideos === "function") {
+          setTimeout(loadVideos, 3000);
+        }
       }
     });
   </script>
+</head>
 
   <style>
     body {
