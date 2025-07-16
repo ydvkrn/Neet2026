@@ -5,16 +5,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Zoology</title>
 
-  <!-- 🔒 Temporarily Hide Body Until Auth Checked -->
+  <!-- 🔒 Hide page until auth is checked -->
   <style id="authHideStyle">
-    body { display: none; background-color: #121212; }
+    body { display: none; background-color: #121212; color: white; }
   </style>
 
   <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/11.10.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/11.10.0/firebase-auth-compat.js"></script>
 
-  <!-- Firebase Auth Config & Check -->
+  <!-- Firebase Config & Auth Check -->
   <script>
     const firebaseConfig = {
       apiKey: "AIzaSyBosCBTgIDeRabFMkuqS_cbjkdHDcegFJw",
@@ -32,12 +32,13 @@
         document.body.style.display = "block";
         console.log("✅ Logged in:", user.email);
       } else {
-        window.location.href = "/https://ydvkrn.github.io/Neet2026/login.html"; // 🔁 Redirect to login
+        // ✅ Always use full repo path for subdirectory compatibility
+        window.location.href = "/Neet2026/login.html";
       }
     });
   </script>
 
-  <!-- Custom Design -->
+  <!-- Styling -->
   <style>
     body {
       background-color: #121212;
@@ -106,15 +107,19 @@
 </head>
 
 <body oncontextmenu="return false">
+  <!-- Header -->
   <div class="header">
     <img src="https://gosharpener.com/content/uploads/photos/2024/08/sngine_d789172177a31e6918fa4f5672114ff5.jpg" alt="Logo" class="logo">
     Zoology
   </div>
 
+  <!-- Sub-header -->
   <div class="small-header">Powered by BTF Group</div>
 
+  <!-- Videos will be loaded here -->
   <div id="videoContainer" class="video-container"></div>
 
+  <!-- JSON Loader -->
   <script>
     const jsonURL = "https://raw.githubusercontent.com/ydvkrn/Neet2026/main/Biology/Zoology/files.json";
 
