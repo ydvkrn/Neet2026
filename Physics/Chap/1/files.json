@@ -1,0 +1,102 @@
+{
+  "videos": [
+    {
+      "id": "MSM01",
+      "title": "Basic Mathematics And Calculation 🧮 01",
+      "thumbnail": "https://i.ibb.co/kVH2Jp31/20250716-171032.jpg",
+      "pdfUrl": "https://example.com/bmc1.pdf",
+      "notice": "Important: For educational use only."
+    },
+    {
+      "id": "MSM02",
+      "title": "Basic Mathematics And Calculation 🧮 02",
+      "thumbnail": "https://i.ibb.co/yBbFkCYs/20250716-171041.jpg",
+      "pdfUrl": "https://example.com/bmc2.pdf",
+      "notice": "Important: For educational use only."
+    },
+    {
+      "id": "MSM03",
+      "title": "Basic Mathematics And Calculation 🧮 03",
+      "thumbnail": "https://i.ibb.co/qLwRnT1G/20250716-171048.jpg",
+      "pdfUrl": "https://example.com/bmc3.pdf",
+      "notice": "Important: For educational use only."
+    },
+    {
+      "id": "MSM04",
+      "title": "Basic Mathematics And Calculation 🧮 04",
+      "thumbnail": "https://i.ibb.co/Pv70NFZq/20250716-171056.jpg",
+      "pdfUrl": "https://example.com/bmc4.pdf",
+      "notice": "Important: For educational use only."
+    },
+    {
+      "id": "MSM05",
+      "title": "Basic Mathematics And Calculation 🧮 05",
+      "thumbnail": "https://i.ibb.co/YBGDn5RT/20250716-171104.jpg",
+      "pdfUrl": "https://example.com/bmc5.pdf",
+      "notice": "Important: For educational use only."
+    },
+    {
+      "id": "MSM06",
+      "title": "Basic Mathematics And Calculation 🧮 06",
+      "thumbnail": "https://i.ibb.co/s94YychR/20250716-171110.jpg",
+      "pdfUrl": "https://example.com/bmc6.pdf",
+      "notice": "Important: For educational use only."
+    },
+    {
+      "id": "MSM07",
+      "title": "Basic Mathematics And Calculation 🧮 07",
+      "thumbnail": "https://i.ibb.co/JwbN4nW2/20250716-171117.jpg",
+      "pdfUrl": "https://example.com/bmc7.pdf",
+      "notice": "Important: For educational use only."
+    },
+    {
+      "id": "MSM08",
+      "title": "Basic Mathematics And Calculation 🧮 08",
+      "thumbnail": "https://i.ibb.co/ZRYt6690/20250716-171124.jpg",
+      "pdfUrl": "https://example.com/bmc8.pdf",
+      "notice": "Important: For educational use only."
+    },
+    {
+      "id": "MSM09",
+      "title": "Basic Mathematics And Calculation 🧮 09",
+      "thumbnail": "https://i.ibb.co/fYZpRc1c/20250716-171137.jpg",
+      "pdfUrl": "https://example.com/bmc9.pdf",
+      "notice": "Important: For educational use only."
+    },
+    {
+      "id": "MSM10",
+      "title": "Basic Mathematics And Calculation 🧮 10",
+      "thumbnail": "https://i.ibb.co/fdndPxWP/20250716-171158.jpg",
+      "pdfUrl": "https://example.com/bmc10.pdf",
+      "notice": "Important: For educational use only."
+    },
+    {
+      "id": "MSM11",
+      "title": "Basic Mathematics And Calculation 🧮 11",
+      "thumbnail": "https://i.ibb.co/8n76YJv1/20250716-171204.jpg",
+      "pdfUrl": "https://example.com/bmc11.pdf",
+      "notice": "Important: For educational use only."
+    },
+    {
+      "id": "MSM12",
+      "title": "Basic Mathematics And Calculation 🧮 12",
+      "thumbnail": "https://i.ibb.co/q36wrD2c/20250716-171209.jpg",
+      "pdfUrl": "https://example.com/bmc12.pdf",
+      "notice": "Important: For educational use only."
+    },
+    {
+      "id": "MSM13",
+      "title": "Basic Mathematics And Calculation 🧮 13",
+      "thumbnail": "https://i.ibb.co/MkkZfQ7V/20250716-171216.jpg",
+      "pdfUrl": "https://example.com/bmc13.pdf",
+      "notice": "Important: For educational use only."
+    },
+    {
+      "id": "MSM14",
+      "title": "Basic Mathematics And Calculation 🧮 14",
+      "thumbnail": "https://i.ibb.co/jcbHRZ8/20250716-171224.jpg",
+      "pdfUrl": "https://example.com/bmc14.pdf",
+      "notice": "Important: For educational use only."
+    }
+  ]
+}
