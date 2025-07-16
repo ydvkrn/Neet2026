@@ -5,10 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Study</title>
 
-  <!-- Hide entire body until auth is verified -->
+  <!-- Auth protection: Hide page by default -->
   <style>
     body {
-      display: none; /* Hidden until auth success */
+      display: none;
       background-color: #121212;
       color: white;
       font-family: Arial, sans-serif;
@@ -16,6 +16,13 @@
       margin: 0;
       padding: 0;
     }
+  </style>
+
+  <!-- Firebase Auth Check -->
+  <script src="auth.js"></script>
+
+  <!-- Styling for page content -->
+  <style>
     .header {
       display: flex;
       align-items: center;
@@ -72,9 +79,6 @@
       padding: 10px;
     }
   </style>
-
-  <!-- Only load auth.js -->
-  <script src="auth.js"></script>
 </head>
 
 <body oncontextmenu="return false">
@@ -121,6 +125,5 @@
       });
     }
   </script>
-
 </body>
 </html>
