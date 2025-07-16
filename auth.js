@@ -1,9 +1,10 @@
-// auth.js
+// authcheck.js
 
-// Load Firebase SDK
+// Firebase SDK load (only once)
 document.write('<script src="https://www.gstatic.com/firebasejs/11.10.0/firebase-app-compat.js"><\/script>');
 document.write('<script src="https://www.gstatic.com/firebasejs/11.10.0/firebase-auth-compat.js"><\/script>');
 
+// Run auth check after window load
 window.addEventListener("load", () => {
   const checkAuth = () => {
     if (!firebase.apps.length) {
@@ -22,14 +23,15 @@ window.addEventListener("load", () => {
         window.location.href = "login.html";
       } else {
         console.log("✅ Logged in:", user.email);
-        document.body.style.display = "block"; // ✅ अब HTML show करो
+        // 🔓 Page visible after successful login
+        document.documentElement.style.display = "block";
       }
     });
   };
 
-  // Wait for firebase
+  // Wait for firebase to be available
   const waitForFirebase = setInterval(() => {
-    if (typeof firebase !== "undefined") {
+    if (typeof firebase !== "undefined" && firebase.auth) {
       clearInterval(waitForFirebase);
       checkAuth();
     }
