@@ -2,12 +2,59 @@
 <html lang="hi">
 <head>
   <meta charset="UTF-8">
-  <title>Vector by Saleem Sir</title>
+  <title>Vector By Saleem Sir</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Hide content until Firebase auth check completes -->
+  <style id="hideBodyStyle">
+    body { display: none; background: #000; color: white; }
+  </style>
+
+  <!-- Plyr CSS -->
   <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap" rel="stylesheet">
 
-<script src="auth.js"></script>
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/11.10.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/11.10.0/firebase-auth-compat.js"></script>
+
+  <!-- Firebase Auth & Unlock Content -->
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyBosCBTgIDeRabFMkuqS_cbjkdHDcegFJw",
+      authDomain: "msmneet1.firebaseapp.com",
+      projectId: "msmneet1",
+      storageBucket: "msmneet1.appspot.com",
+      messagingSenderId: "920361933770",
+      appId: "1:920361933770:web:4dba802da04a8548348d33"
+    };
+    firebase.initializeApp(firebaseConfig);
+
+    firebase.auth().onAuthStateChanged((user) => {
+      if (!user) {
+        // Dynamic login redirect based on domain
+        const host = window.location.hostname;
+        let loginPath = "";
+
+        if (host.includes("github.io")) {
+          loginPath = "/Neet2026/login.html";
+        } else {
+          loginPath = "/login.html";
+        }
+
+        window.location.href = loginPath;
+      } else {
+        document.getElementById("hideBodyStyle")?.remove();
+        document.body.style.display = "block";
+
+        // Load videos or data after login
+        if (typeof loadVideos === "function") {
+          setTimeout(loadVideos, 3000);
+        }
+      }
+    });
+  </script>
+</head>
   <style>
     body {
       font-family: 'Poppins', sans-serif;
