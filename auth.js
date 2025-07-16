@@ -1,38 +1,37 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
-import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
-import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-database.js";
+// authcheck.js
 
-const firebaseConfig = {
-  apiKey: "AIzaSyBosCBTgIDeRabFMkuqS_cbjkdHDcegFJw",
-  authDomain: "msmneet1.firebaseapp.com",
-  databaseURL: "https://msmneet1-default-rtdb.firebaseio.com",
-  projectId: "msmneet1",
-  storageBucket: "msmneet1.appspot.com",
-  messagingSenderId: "920361933770",
-  appId: "1:920361933770:web:4dba802da04a8548348d33"
-};
+// Firebase SDK load (only once)
+document.write('<script src="https://www.gstatic.com/firebasejs/11.10.0/firebase-app-compat.js"><\/script>');
+document.write('<script src="https://www.gstatic.com/firebasejs/11.10.0/firebase-auth-compat.js"><\/script>');
 
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getDatabase(app);
+// Run auth check after window load
+window.addEventListener("load", () => {
+  const checkAuth = () => {
+    if (!firebase.apps.length) {
+      firebase.initializeApp({
+        apiKey: "AIzaSyBosCBTgIDeRabFMkuqS_cbjkdHDcegFJw",
+        authDomain: "msmneet1.firebaseapp.com",
+        projectId: "msmneet1",
+        storageBucket: "msmneet1.appspot.com",
+        messagingSenderId: "920361933770",
+        appId: "1:920361933770:web:4dba802da04a8548348d33"
+      });
+    }
 
-onAuthStateChanged(auth, (user) => {
-  if (user) {
-    const uid = user.uid;
-    const currentSession = localStorage.getItem("sessionID");
-    const sessionRef = ref(db, `sessions/${uid}`);
-
-    onValue(sessionRef, (snapshot) => {
-      const dbSession = snapshot.val();
-      if (dbSession !== currentSession) {
-        alert("❌ Your account was logged in from another device. You are logged out.");
-        signOut(auth).then(() => {
-          localStorage.removeItem("sessionID");
-          window.location.href = "login.html";
-        });
+    firebase.auth().onAuthStateChanged((user) => {
+      if (!user) {
+        window.location.href = "login.html";
+      } else {
+        console.log("✅ Logged in:", user.email);
       }
     });
-  } else {
-    window.location.href = "login.html";
-  }
+  };
+
+  // Wait for firebase to be available
+  const waitForFirebase = setInterval(() => {
+    if (typeof firebase !== "undefined") {
+      clearInterval(waitForFirebase);
+      checkAuth();
+    }
+  }, 100);
 });
