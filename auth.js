@@ -1,39 +1,26 @@
-// auth.js
+// ✅ Firebase Auth Detection (Reusable for all pages)
 
-// Firebase SDK load
-document.write('<script src="https://www.gstatic.com/firebasejs/11.10.0/firebase-app-compat.js"><\/script>');
-document.write('<script src="https://www.gstatic.com/firebasejs/11.10.0/firebase-auth-compat.js"><\/script>');
+// Firebase config (same for all)
+const firebaseConfig = {
+  apiKey: "AIzaSyBosCBTgIDeRabFMkuqS_cbjkdHDcegFJw",
+  authDomain: "msmneet1.firebaseapp.com",
+  projectId: "msmneet1",
+  storageBucket: "msmneet1.appspot.com",
+  messagingSenderId: "920361933770",
+  appId: "1:920361933770:web:4dba802da04a8548348d33"
+};
 
-// Wait until Firebase is loaded
-window.addEventListener("load", () => {
-  const checkAuth = () => {
-    if (!firebase.apps.length) {
-      firebase.initializeApp({
-        apiKey: "AIzaSyBosCBTgIDeRabFMkuqS_cbjkdHDcegFJw",
-        authDomain: "msmneet1.firebaseapp.com",
-        projectId: "msmneet1",
-        storageBucket: "msmneet1.appspot.com",
-        messagingSenderId: "920361933770",
-        appId: "1:920361933770:web:4dba802da04a8548348d33"
-      });
-    }
+// Initialize Firebase
+firebase.initializeApp(firebaseConfig);
 
-    firebase.auth().onAuthStateChanged((user) => {
-      if (!user) {
-        window.location.href = "/Neet2026/login.html";
-      } else {
-        console.log("✅ Logged in:", user.email);
-        // ✅ Remove style that hides body
-        document.getElementById("hideStyle")?.remove();
-        document.body.style.display = "block";
-      }
-    });
-  };
-
-  const waitForFirebase = setInterval(() => {
-    if (typeof firebase !== "undefined") {
-      clearInterval(waitForFirebase);
-      checkAuth();
-    }
-  }, 100);
+// Check login
+firebase.auth().onAuthStateChanged(user => {
+  if (user) {
+    document.getElementById("authHideStyle")?.remove();
+    document.body.style.display = "block";
+    console.log("✅ Logged in as:", user.email);
+  } else {
+    // Always redirect to main login path
+    window.location.href = "/Neet2026/login.html";
+  }
 });
