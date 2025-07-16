@@ -160,10 +160,12 @@
         const json = await res.json();
 
         if (json.status === "success") {
+          // ✅ Login success - Set flag
+          localStorage.setItem("isLoggedIn", "true");
           result.className = "success";
           result.textContent = json.message;
           setTimeout(() => {
-            window.location.href = "lecture.html";
+            window.location.href = "lecture.html"; // या homepage
           }, 1000);
         } else {
           result.className = "error";
