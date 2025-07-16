@@ -20,7 +20,7 @@ window.addEventListener("load", () => {
 
     firebase.auth().onAuthStateChanged((user) => {
       if (!user) {
-        window.location.href = "login.html";
+        window.location.href = "/Neet2026/login.html";
       } else {
         console.log("✅ Logged in:", user.email);
         // ✅ Remove style that hides body
