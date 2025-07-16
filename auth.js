@@ -23,13 +23,13 @@ window.addEventListener("load", () => {
         window.location.href = "login.html";
       } else {
         console.log("✅ Logged in:", user.email);
-        // ⬇️ SHOW BODY after auth check success
+        // ✅ Remove style that hides body
+        document.getElementById("hideStyle")?.remove();
         document.body.style.display = "block";
       }
     });
   };
 
-  // Wait for firebase to be ready
   const waitForFirebase = setInterval(() => {
     if (typeof firebase !== "undefined") {
       clearInterval(waitForFirebase);
