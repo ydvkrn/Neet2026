@@ -73,47 +73,11 @@
     }
   </style>
 
-  <!-- Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/11.10.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/11.10.0/firebase-auth-compat.js"></script>
-
-  <!-- Auth Check Script -->
-  <script>
-    window.addEventListener("load", () => {
-      const checkAuth = () => {
-        if (!firebase.apps.length) {
-          firebase.initializeApp({
-            apiKey: "AIzaSyBosCBTgIDeRabFMkuqS_cbjkdHDcegFJw",
-            authDomain: "msmneet1.firebaseapp.com",
-            projectId: "msmneet1",
-            storageBucket: "msmneet1.appspot.com",
-            messagingSenderId: "920361933770",
-            appId: "1:920361933770:web:4dba802da04a8548348d33"
-          });
-        }
-
-        firebase.auth().onAuthStateChanged((user) => {
-          if (!user) {
-            window.location.href = "login.html";
-          } else {
-            console.log("✅ Logged in:", user.email);
-            document.body.style.display = "block"; // Show the page
-          }
-        });
-      };
-
-      // Wait for Firebase to be loaded
-      const waitForFirebase = setInterval(() => {
-        if (typeof firebase !== "undefined") {
-          clearInterval(waitForFirebase);
-          checkAuth();
-        }
-      }, 100);
-    });
-  </script>
+  <!-- Only load auth.js -->
+  <script src="auth.js"></script>
 </head>
 
-<body oncontextmenu="return false"> <!-- Disable Right-Click -->
+<body oncontextmenu="return false">
 
   <!-- Header Section -->
   <div class="header">
