@@ -4,6 +4,7 @@
 document.write('<script src="https://www.gstatic.com/firebasejs/11.10.0/firebase-app-compat.js"><\/script>');
 document.write('<script src="https://www.gstatic.com/firebasejs/11.10.0/firebase-auth-compat.js"><\/script>');
 
+// Wait until Firebase is loaded
 window.addEventListener("load", () => {
   const checkAuth = () => {
     if (!firebase.apps.length) {
@@ -21,11 +22,14 @@ window.addEventListener("load", () => {
       if (!user) {
         window.location.href = "login.html";
       } else {
-        document.body.style.display = "block"; // ✅ Only show content if logged in
+        console.log("✅ Logged in:", user.email);
+        // ⬇️ SHOW BODY after auth check success
+        document.body.style.display = "block";
       }
     });
   };
 
+  // Wait for firebase to be ready
   const waitForFirebase = setInterval(() => {
     if (typeof firebase !== "undefined") {
       clearInterval(waitForFirebase);
