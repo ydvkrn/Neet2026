@@ -17,6 +17,7 @@
   <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/11.10.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/11.10.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/11.10.0/firebase-database-compat.js"></script>
 
   <!-- Fonts and Styling -->
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap" rel="stylesheet">
@@ -70,11 +71,12 @@
     }
   </style>
 
-  <!-- Firebase Config + Auth Check -->
+  <!-- Firebase Config + Auth + Device ID Lock -->
   <script>
     const firebaseConfig = {
       apiKey: "AIzaSyBosCBTgIDeRabFMkuqS_cbjkdHDcegFJw",
       authDomain: "msmneet1.firebaseapp.com",
+      databaseURL: "https://msmneet1-default-rtdb.asia-southeast1.firebasedatabase.app",
       projectId: "msmneet1",
       storageBucket: "msmneet1.appspot.com",
       messagingSenderId: "920361933770",
@@ -82,22 +84,58 @@
     };
     firebase.initializeApp(firebaseConfig);
 
-    firebase.auth().onAuthStateChanged((user) => {
+    // Generate or retrieve device ID
+    function getDeviceId() {
+      let id = localStorage.getItem("device_id_msmneet");
+      if (!id) {
+        id = Math.random().toString(36).substr(2) + Date.now().toString(36);
+        localStorage.setItem("device_id_msmneet", id);
+      }
+      return id;
+    }
+
+    firebase.auth().onAuthStateChanged(async (user) => {
       if (!user) {
         const host = window.location.hostname;
         const loginPath = host.includes("github.io") ? "/Neet2026/login.html" : "/login.html";
         window.location.href = loginPath;
-      } else {
+        return;
+      }
+
+      const uid = user.uid;
+      const deviceId = getDeviceId();
+      const ref = firebase.database().ref("activeDevices/" + uid);
+
+      try {
+        const snapshot = await ref.get();
+        const savedId = snapshot.val()?.deviceId;
+
+        if (savedId && savedId !== deviceId) {
+          alert("❌ Already logged in on another device.");
+          await firebase.auth().signOut();
+          const host = window.location.hostname;
+          const loginPath = host.includes("github.io") ? "/Neet2026/login.html" : "/login.html";
+          window.location.href = loginPath;
+          return;
+        }
+
+        await ref.set({
+          deviceId: deviceId,
+          lastLogin: Date.now()
+        });
+
         // ✅ Unhide content
-        const hideStyle = document.getElementById("hideBodyStyle");
-        if (hideStyle) hideStyle.remove();
+        document.getElementById("hideBodyStyle")?.remove();
         document.body.removeAttribute("style");
         document.documentElement.removeAttribute("style");
 
-        // ✅ Load video data
         if (typeof loadVideos === "function") {
           setTimeout(loadVideos, 1000);
         }
+      } catch (err) {
+        console.error("Firebase error:", err);
+        alert("⚠️ Server error. Try again.");
+        await firebase.auth().signOut();
       }
     });
   </script>
