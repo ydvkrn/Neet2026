@@ -10,19 +10,20 @@
     body { display: none; background: #000; color: white; }
   </style>
 
-  <!-- Plyr CSS -->
   <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap" rel="stylesheet">
 
   <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/11.10.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/11.10.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/11.10.0/firebase-database-compat.js"></script>
 
-  <!-- Firebase Auth & Unlock Content -->
+  <!-- Firebase Config & Auth -->
   <script>
     const firebaseConfig = {
       apiKey: "AIzaSyBosCBTgIDeRabFMkuqS_cbjkdHDcegFJw",
       authDomain: "msmneet1.firebaseapp.com",
+      databaseURL: "https://msmneet1-default-rtdb.firebaseio.com/",
       projectId: "msmneet1",
       storageBucket: "msmneet1.appspot.com",
       messagingSenderId: "920361933770",
@@ -30,148 +31,172 @@
     };
     firebase.initializeApp(firebaseConfig);
 
-    firebase.auth().onAuthStateChanged((user) => {
+    function getDeviceId() {
+      let id = localStorage.getItem("device_id_msmneet");
+      if (!id) {
+        id = Math.random().toString(36).substring(2) + Date.now().toString(36);
+        localStorage.setItem("device_id_msmneet", id);
+      }
+      return id;
+    }
+
+    firebase.auth().onAuthStateChanged(async (user) => {
       if (!user) {
-        // Dynamic login redirect based on domain
         const host = window.location.hostname;
-        let loginPath = "";
-
-        if (host.includes("github.io")) {
-          loginPath = "/Neet2026/login.html";
-        } else {
-          loginPath = "/login.html";
-        }
-
-        window.location.href = loginPath;
+        let loginPath = host.includes("github.io") ? "/Neet2026/login.html" : "/login.html";
+        location.href = loginPath;
       } else {
         document.getElementById("hideBodyStyle")?.remove();
         document.body.style.display = "block";
 
-        // Load videos or data after login
         if (typeof loadVideos === "function") {
-          setTimeout(loadVideos, 3000);
+          setTimeout(loadVideos, 2000);
         }
       }
     });
+
+    async function logoutUser() {
+      const user = firebase.auth().currentUser;
+      if (user) {
+        const deviceId = getDeviceId();
+        await firebase.database().ref("activeDevices/" + user.uid).remove();
+        localStorage.removeItem("device_id_msmneet");
+        await firebase.auth().signOut();
+        window.location.href = window.location.hostname.includes("github.io")
+          ? "/Neet2026/login.html"
+          : "/login.html";
+      }
+    }
   </script>
+
+  <style>
+    body {
+      background-color: #121212;
+      color: white;
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin: 0;
+      padding: 0;
+    }
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: #1e1e1e;
+      padding: 15px;
+      font-size: 22px;
+      font-weight: bold;
+      position: relative;
+    }
+    .logo {
+      position: absolute;
+      left: 15px;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+    }
+    .logout-btn {
+      position: absolute;
+      right: 15px;
+      background: transparent;
+      border: 1px solid white;
+      color: white;
+      padding: 6px 12px;
+      font-size: 14px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .logout-btn:hover {
+      background-color: white;
+      color: black;
+    }
+    .small-header {
+      background-color: #1e1e1e;
+      padding: 5px;
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.7);
+    }
+    .video-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 10px;
+    }
+    .video-box {
+      width: 90%;
+      max-width: 400px;
+      margin: 10px 15px;
+      cursor: pointer;
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      border-radius: 10px;
+      overflow: hidden;
+      background-color: #1e1e1e;
+      transition: 0.3s;
+    }
+    .video-box:hover {
+      transform: scale(1.05);
+      border-color: white;
+    }
+    .video-box img {
+      width: 100%;
+      border-radius: 10px;
+      pointer-events: none;
+      -webkit-user-drag: none;
+    }
+    .video-title {
+      font-size: 18px;
+      font-weight: bold;
+      padding: 10px;
+    }
+  </style>
 </head>
-    <style>
-        body {
-            background-color: #121212;
-            color: white;
-            font-family: Arial, sans-serif;
-            text-align: center;
-            margin: 0;
-            padding: 0;
-        }
-        /* Header Design */
-        .header {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background-color: #1e1e1e;
-            padding: 15px;
-            font-size: 22px;
-            font-weight: bold;
-            position: relative;
-        }
-        .logo {
-            position: absolute;
-            left: 15px;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-        }
-        /* Small Header */
-        .small-header {
-            background-color: #1e1e1e;
-            padding: 5px;
-            font-size: 14px;
-            color: rgba(255, 255, 255, 0.7);
-        }
-        /* Video Container */
-        .video-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 10px;
-        }
-        .video-box {
-            width: 90%;
-            max-width: 400px;
-            margin: 10px 15px;
-            cursor: pointer;
-            border: 2px solid rgba(255, 255, 255, 0.2);
-            border-radius: 10px;
-            overflow: hidden;
-            background-color: #1e1e1e;
-            transition: 0.3s;
-        }
-        .video-box:hover {
-            transform: scale(1.05);
-            border-color: white;
-        }
-        .video-box img {
-            width: 100%;
-            border-radius: 10px;
-            pointer-events: none; /* Disable Drag */
-            -webkit-user-drag: none; /* Safari */
-        }
-        .video-title {
-            font-size: 18px;
-            font-weight: bold;
-            padding: 10px;
-        }
-    </style>
-</head>
-<body oncontextmenu="return false"> <!-- Disable Right-Click -->
+<body oncontextmenu="return false">
 
-    <!-- Header Section -->
-    <div class="header">
-        <img src=https://i.postimg.cc/fLTthHLk/image.jpg" alt="Logo" class="logo">
-        Lectures 📓
-    </div>
+  <div class="header">
+    <img src="https://i.postimg.cc/fLTthHLk/image.jpg" alt="Logo" class="logo">
+    Lectures 📓
+    <button class="logout-btn" onclick="logoutUser()">Logout</button>
+  </div>
 
-    <!-- Small Header Below Entertainment -->
-    <div class="small-header">Powered by BTF Group</div>
+  <div class="small-header">Powered by BTF Group</div>
 
-    <!-- Video List Container -->
-    <div id="videoContainer" class="video-container"></div>
+  <div id="videoContainer" class="video-container"></div>
 
-    <script>
-        const jsonURL = "https://raw.githubusercontent.com/ydvkrn/Neet2026/main/home.json"; // JSON File Link
+  <script>
+    function loadVideos() {
+      const jsonURL = "https://raw.githubusercontent.com/ydvkrn/Neet2026/main/home.json";
 
-        fetch(jsonURL)
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(`HTTP error! Status: ${response.status}`);
-                }
-                return response.json();
-            })
-            .then(data => {
-                displayVideos(data);
-            })
-            .catch(error => console.error("JSON Load Error: ", error));
+      fetch(jsonURL)
+        .then(response => {
+          if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+          }
+          return response.json();
+        })
+        .then(data => {
+          displayVideos(data);
+        })
+        .catch(error => console.error("JSON Load Error: ", error));
+    }
 
-        function displayVideos(videos) {
-            let container = document.getElementById("videoContainer");
-            container.innerHTML = "";
+    function displayVideos(videos) {
+      const container = document.getElementById("videoContainer");
+      container.innerHTML = "";
 
-            videos.forEach(video => {
-                let videoBox = document.createElement("div");
-                videoBox.classList.add("video-box");
+      videos.forEach(video => {
+        const videoBox = document.createElement("div");
+        videoBox.classList.add("video-box");
 
-                videoBox.innerHTML = `
-                    <img src="${video.thumbnail}" alt="Thumbnail">
-                    <div class="video-title">${video.title}</div>
-                `;
+        videoBox.innerHTML = `
+          <img src="${video.thumbnail}" alt="Thumbnail">
+          <div class="video-title">${video.title}</div>
+        `;
 
-                videoBox.onclick = () => window.location.href = video.redirect; // Redirect to given page
-
-                container.appendChild(videoBox);
-            });
-        }
-    </script>
+        videoBox.onclick = () => window.location.href = video.redirect;
+        container.appendChild(videoBox);
+      });
+    }
+  </script>
 
 </body>
 </html>
