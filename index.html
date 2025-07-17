@@ -2,23 +2,31 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Study</title>
+  <title>Lectures 📓</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- Hide body until auth check -->
+  <!-- Body initially hidden -->
   <style id="hideBodyStyle">
-    body { background: #000; color: white; display: none; margin: 0; padding: 0; }
+    html, body {
+      display: none;
+      background: #000;
+      color: white;
+      margin: 0;
+      padding: 0;
+    }
   </style>
 
+  <!-- CSS & Fonts -->
   <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap" rel="stylesheet">
 
-  <!-- Firebase SDK -->
+  <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/11.10.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/11.10.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/11.10.0/firebase-database-compat.js"></script>
 
   <script>
+    // ✅ Firebase Config
     const firebaseConfig = {
       apiKey: "AIzaSyBosCBTgIDeRabFMkuqS_cbjkdHDcegFJw",
       authDomain: "msmneet1.firebaseapp.com",
@@ -28,9 +36,9 @@
       appId: "1:920361933770:web:4dba802da04a8548348d33",
       databaseURL: "https://msmneet1-default-rtdb.asia-southeast1.firebasedatabase.app"
     };
-
     firebase.initializeApp(firebaseConfig);
 
+    // ✅ Device ID function
     function getDeviceId() {
       let id = localStorage.getItem("device_id_msmneet");
       if (!id) {
@@ -40,11 +48,12 @@
       return id;
     }
 
+    // ✅ Auth + Device ID Check
     firebase.auth().onAuthStateChanged(async (user) => {
       if (!user) {
-        const host = window.location.hostname;
+        const host = location.hostname;
         const loginPath = host.includes("github.io") ? "/Neet2026/login.html" : "/login.html";
-        window.location.href = loginPath;
+        location.href = loginPath;
         return;
       }
 
@@ -57,38 +66,35 @@
         const savedId = snap.val()?.deviceId;
 
         if (savedId && savedId !== deviceId) {
-          alert("❌ Already logged in on another device.");
+          alert("❌ Logged in on another device.");
           await firebase.auth().signOut();
-          const loginPath = window.location.hostname.includes("github.io") ? "/Neet2026/login.html" : "/login.html";
-          window.location.href = loginPath;
+          const loginPath = location.hostname.includes("github.io") ? "/Neet2026/login.html" : "/login.html";
+          location.href = loginPath;
           return;
         }
 
         await ref.set({ deviceId, lastLogin: Date.now() });
 
-        // ✅ Remove hidden style
-        const hideCSS = document.getElementById("hideBodyStyle");
-        if (hideCSS) hideCSS.remove();
+        // ✅ Unlock content
+        document.getElementById("hideBodyStyle")?.remove();
         document.body.style.display = "block";
-        document.documentElement.style.display = "block";
 
-        // ✅ Call video loader
-        if (typeof loadVideos === "function") {
-          setTimeout(loadVideos, 300);
-        }
-      } catch (e) {
-        console.error(e);
-        alert("⚠️ Firebase error");
+        // ✅ Load videos
+        loadVideos();
+      } catch (err) {
+        alert("⚠️ Server error.");
         firebase.auth().signOut();
       }
     });
   </script>
 
+  <!-- CSS -->
   <style>
     body {
       font-family: 'Poppins', sans-serif;
       background-color: #121212;
       color: white;
+      margin: 0;
     }
 
     .header {
@@ -139,6 +145,7 @@
 
   <div id="videoContainer" class="video-container"></div>
 
+  <!-- ✅ Video Loader -->
   <script>
     function loadVideos() {
       const jsonURL = "https://raw.githubusercontent.com/ydvkrn/Neet2026/refs/heads/main/home.json";
