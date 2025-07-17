@@ -14,46 +14,53 @@
   <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap" rel="stylesheet">
 
-  <!-- Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/11.10.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/11.10.0/firebase-auth-compat.js"></script>
+  <!-- Firebase SDKs (if not already added in page) -->
+<script src="https://www.gstatic.com/firebasejs/11.10.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/11.10.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/11.10.0/firebase-database-compat.js"></script>
 
-  <!-- Firebase Auth & Unlock Content -->
-  <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyBosCBTgIDeRabFMkuqS_cbjkdHDcegFJw",
-      authDomain: "msmneet1.firebaseapp.com",
-      projectId: "msmneet1",
-      storageBucket: "msmneet1.appspot.com",
-      messagingSenderId: "920361933770",
-      appId: "1:920361933770:web:4dba802da04a8548348d33"
-    };
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyBosCBTgIDeRabFMkuqS_cbjkdHDcegFJw",
+    authDomain: "msmneet1.firebaseapp.com",
+    databaseURL: "https://msmneet1-default-rtdb.firebaseio.com/",
+    projectId: "msmneet1",
+    storageBucket: "msmneet1.appspot.com",
+    messagingSenderId: "920361933770",
+    appId: "1:920361933770:web:4dba802da04a8548348d33"
+  };
+
+  // Initialize only once if not already done
+  if (!firebase.apps.length) {
     firebase.initializeApp(firebaseConfig);
+  }
 
-    firebase.auth().onAuthStateChanged((user) => {
-      if (!user) {
-        // Dynamic login redirect based on domain
-        const host = window.location.hostname;
-        let loginPath = "";
+  function getDeviceId() {
+    let id = localStorage.getItem("device_id_msmneet");
+    if (!id) {
+      id = Math.random().toString(36).substring(2) + Date.now().toString(36);
+      localStorage.setItem("device_id_msmneet", id);
+    }
+    return id;
+  }
 
-        if (host.includes("github.io")) {
-          loginPath = "/Neet2026/login.html";
-        } else {
-          loginPath = "/login.html";
+  firebase.auth().onAuthStateChanged(user => {
+    if (user) {
+      const ref = firebase.database().ref("activeDevices/" + user.uid);
+      const currentDevice = getDeviceId();
+
+      setInterval(async () => {
+        const snap = await ref.get();
+        const stored = snap.val();
+        if (!stored || stored.deviceId !== currentDevice) {
+          await firebase.auth().signOut();
+          alert("⚠️ You've been logged out because your account was accessed from another device.");
+          location.href = location.hostname.includes("github.io") ? "/Neet2026/login.html" : "/login.html";
         }
-
-        window.location.href = loginPath;
-      } else {
-        document.getElementById("hideBodyStyle")?.remove();
-        document.body.style.display = "block";
-
-        // Load videos or data after login
-        if (typeof loadVideos === "function") {
-          setTimeout(loadVideos, 3000);
-        }
-      }
-    });
-  </script>
+      }, 10000); // every 10 seconds
+    }
+  });
+</script>
 </head>
   <!-- Hide Until Auth Verified -->
   <style>
