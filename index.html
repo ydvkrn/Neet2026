@@ -5,88 +5,28 @@
   <title>Lectures 📓</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- Hide body until auth check -->
+  <!-- Hide body initially -->
   <style id="hideBodyStyle">
-    body { background: #000; color: white; display: none; margin: 0; padding: 0; }
+    html, body {
+      display: none !important;
+      background: black;
+      color: white;
+    }
   </style>
-
-  <!-- Plyr CSS -->
-  <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap" rel="stylesheet">
 
   <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/11.10.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/11.10.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/11.10.0/firebase-database-compat.js"></script>
 
-  <!-- Firebase Auth + Device Lock -->
-  <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyBosCBTgIDeRabFMkuqS_cbjkdHDcegFJw",
-      authDomain: "msmneet1.firebaseapp.com",
-      projectId: "msmneet1",
-      databaseURL: "https://msmneet1-default-rtdb.asia-southeast1.firebasedatabase.app",
-      storageBucket: "msmneet1.appspot.com",
-      messagingSenderId: "920361933770",
-      appId: "1:920361933770:web:4dba802da04a8548348d33"
-    };
-    firebase.initializeApp(firebaseConfig);
-
-    function getDeviceId() {
-      let id = localStorage.getItem("device_id_msmneet");
-      if (!id) {
-        id = Math.random().toString(36).substring(2) + Date.now().toString(36);
-        localStorage.setItem("device_id_msmneet", id);
-      }
-      return id;
-    }
-
-    firebase.auth().onAuthStateChanged(async (user) => {
-      if (!user) {
-        const host = window.location.hostname;
-        const loginPath = host.includes("github.io") ? "/Neet2026/login.html" : "/login.html";
-        window.location.href = loginPath;
-        return;
-      }
-
-      const uid = user.uid;
-      const deviceId = getDeviceId();
-      const ref = firebase.database().ref("activeDevices/" + uid);
-
-      try {
-        const snap = await ref.get();
-        const storedId = snap.val()?.deviceId;
-
-        if (storedId && storedId !== deviceId) {
-          alert("❌ You are logged in on another device.");
-          await firebase.auth().signOut();
-          const host = window.location.hostname;
-          const loginPath = host.includes("github.io") ? "/Neet2026/login.html" : "/login.html";
-          window.location.href = loginPath;
-          return;
-        }
-
-        await ref.set({ deviceId, lastLogin: Date.now() });
-
-        document.getElementById("hideBodyStyle")?.remove();
-        document.body.style.display = "block";
-
-        if (typeof loadVideos === "function") {
-          setTimeout(loadVideos, 3000);
-        }
-      } catch (err) {
-        console.error("Device Check Failed:", err);
-        alert("⚠️ Server error. Please try again.");
-        firebase.auth().signOut();
-      }
-    });
-  </script>
-
+  <!-- Fonts and Styling -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap" rel="stylesheet">
   <style>
     body {
       font-family: 'Poppins', sans-serif;
       background-color: #121212;
       color: white;
+      margin: 0;
+      padding: 0;
     }
 
     .header {
@@ -129,13 +69,47 @@
       color: white;
     }
   </style>
+
+  <!-- Firebase Config + Auth Check -->
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyBosCBTgIDeRabFMkuqS_cbjkdHDcegFJw",
+      authDomain: "msmneet1.firebaseapp.com",
+      projectId: "msmneet1",
+      storageBucket: "msmneet1.appspot.com",
+      messagingSenderId: "920361933770",
+      appId: "1:920361933770:web:4dba802da04a8548348d33"
+    };
+    firebase.initializeApp(firebaseConfig);
+
+    firebase.auth().onAuthStateChanged((user) => {
+      if (!user) {
+        const host = window.location.hostname;
+        const loginPath = host.includes("github.io") ? "/Neet2026/login.html" : "/login.html";
+        window.location.href = loginPath;
+      } else {
+        // ✅ Unhide content
+        const hideStyle = document.getElementById("hideBodyStyle");
+        if (hideStyle) hideStyle.remove();
+        document.body.removeAttribute("style");
+        document.documentElement.removeAttribute("style");
+
+        // ✅ Load video data
+        if (typeof loadVideos === "function") {
+          setTimeout(loadVideos, 1000);
+        }
+      }
+    });
+  </script>
 </head>
 
 <body oncontextmenu="return false">
 
   <div class="header">📚 NEET Lectures - Powered by BTF</div>
+
   <div id="videoContainer" class="video-container"></div>
 
+  <!-- Load Videos from JSON -->
   <script>
     function loadVideos() {
       const jsonURL = "https://raw.githubusercontent.com/ydvkrn/Neet2026/refs/heads/main/home.json";
