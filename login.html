@@ -167,7 +167,7 @@
     const firebaseConfig = {
       apiKey: "AIzaSyBosCBTgIDeRabFMkuqS_cbjkdHDcegFJw",
       authDomain: "msmneet1.firebaseapp.com",
-      databaseURL: "https://msmneet1-default-rtdb.asia-southeast1.firebasedatabase.app",
+      databaseURL: "https://msmneet1-default-rtdb.firebaseio.com/", // ✅ Corrected URL
       projectId: "msmneet1",
       storageBucket: "msmneet1.appspot.com",
       messagingSenderId: "920361933770",
@@ -184,15 +184,6 @@
     const statusImg = document.getElementById("statusImg");
     const loginBox = document.getElementById("loginBox");
 
-    function getDeviceId() {
-      let id = localStorage.getItem("device_id_msmneet");
-      if (!id) {
-        id = Math.random().toString(36).substring(2) + Date.now().toString(36);
-        localStorage.setItem("device_id_msmneet", id);
-      }
-      return id;
-    }
-
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
 
@@ -204,32 +195,14 @@
 
       const email = document.getElementById("email").value.trim();
       const password = document.getElementById("password").value.trim();
-      const deviceId = getDeviceId();
 
       try {
         const userCred = await auth.signInWithEmailAndPassword(email, password);
         const user = userCred.user;
-        const uid = user.uid;
 
-        const sessionRef = db.ref("activeDevices/" + uid);
-        const snapshot = await sessionRef.get();
-        const existing = snapshot.val();
-
-        if (existing && existing.deviceId && existing.deviceId !== deviceId) {
-          await auth.signOut();
-          loader.style.display = "none";
-          statusImg.src = "https://i.postimg.cc/jdSwyFFV/failure-icon-23216.png";
-          statusImg.style.display = "block";
-          msg.textContent = "❌ Already logged in on another device.";
-          msg.className = "msg error";
-          loginBox.classList.add("shake");
-          return;
-        }
-
-        await sessionRef.set({
-          deviceId: deviceId,
-          lastLogin: Date.now()
-        });
+        const sessionID = Date.now().toString();
+        await db.ref("sessions/" + user.uid).set(sessionID);
+        localStorage.setItem("sessionID", sessionID);
 
         loader.style.display = "none";
         statusImg.src = "https://cliply.co/wp-content/uploads/2021/03/372103860_CHECK_MARK_400px.gif";
@@ -240,7 +213,6 @@
         setTimeout(() => {
           window.location.href = "index.html";
         }, 1500);
-
       } catch (err) {
         loader.style.display = "none";
         statusImg.src = "https://i.postimg.cc/jdSwyFFV/failure-icon-23216.png";
