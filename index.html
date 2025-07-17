@@ -10,16 +10,14 @@
     body { background: #000; color: white; display: none; margin: 0; padding: 0; }
   </style>
 
-  <!-- Plyr CSS -->
   <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap" rel="stylesheet">
 
-  <!-- Firebase SDK -->
+  <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/11.10.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/11.10.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/11.10.0/firebase-database-compat.js"></script>
 
-  <!-- Firebase Auth + Device Lock -->
   <script>
     const firebaseConfig = {
       apiKey: "AIzaSyBosCBTgIDeRabFMkuqS_cbjkdHDcegFJw",
@@ -32,7 +30,6 @@
     };
     firebase.initializeApp(firebaseConfig);
 
-    // Generate or get device ID
     function getDeviceId() {
       let id = localStorage.getItem("device_id_msmneet");
       if (!id) {
@@ -59,7 +56,7 @@
         const savedId = snap.val()?.deviceId;
 
         if (savedId && savedId !== deviceId) {
-          alert("❌ Logged in on another device.");
+          alert("❌ Already logged in from another device.");
           await firebase.auth().signOut();
           const host = location.hostname;
           const loginPath = host.includes("github.io") ? "/Neet2026/login.html" : "/login.html";
@@ -69,190 +66,105 @@
 
         await ref.set({ deviceId, lastLogin: Date.now() });
 
+        // ✅ Show content
         document.getElementById("hideBodyStyle")?.remove();
         document.body.style.display = "block";
 
-        if (typeof loadVideos === "function") {
-          setTimeout(loadVideos, 3000);
-        }
+        // ✅ Load Videos
+        loadVideos();
       } catch (e) {
+        console.error("Firebase Error:", e);
         alert("⚠️ Server error. Try again.");
         firebase.auth().signOut();
       }
     });
   </script>
-</head>
 
-  <!-- Updated Professional Styling -->
   <style>
-    /* Global Reset and Base Styles */
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    }
-
     body {
-      background-color: #f5f7fa;
-      color: #1a1a1a;
-      line-height: 1.6;
-    }
-
-    /* Header Section */
-    .header {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: linear-gradient(90deg, #2c3e50, #3498db);
+      font-family: 'Poppins', sans-serif;
+      background-color: #121212;
       color: white;
-      padding: 20px;
-      font-size: 24px;
-      font-weight: 600;
-      position: relative;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     }
 
-    .logo {
-      position: absolute;
-      left: 20px;
-      width: 48px;
-      height: 48px;
-      border-radius: 50%;
-      border: 2px solid white;
-      object-fit: cover;
-      transition: transform 0.3s ease;
-    }
-
-    .logo:hover {
-      transform: scale(1.1);
-    }
-
-    /* Small Header */
-    .small-header {
-      background-color: #34495e;
-      color: #ecf0f1;
-      padding: 8px 20px;
-      font-size: 14px;
-      font-weight: 500;
+    .header {
+      background: #222;
+      color: white;
+      padding: 16px;
+      font-size: 20px;
+      font-weight: bold;
       text-align: center;
-      border-bottom: 1px solid #2c3e50;
     }
 
-    /* Video Container */
     .video-container {
+      padding: 20px;
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
       gap: 20px;
-      padding: 20px;
-      max-width: 1200px;
-      margin: 0 auto;
     }
 
     .video-box {
-      background-color: white;
-      border-radius: 12px;
+      background: #1e1e1e;
+      border-radius: 10px;
       overflow: hidden;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
       cursor: pointer;
+      transition: transform 0.3s ease;
     }
 
     .video-box:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+      transform: scale(1.03);
     }
 
     .video-box img {
       width: 100%;
       height: 180px;
       object-fit: cover;
-      border-bottom: 1px solid #e0e0e0;
-      pointer-events: none;
-      -webkit-user-drag: none;
     }
 
     .video-title {
+      padding: 10px;
       font-size: 16px;
-      font-weight: 600;
-      color: #2c3e50;
-      padding: 15px;
-      text-align: left;
-      line-height: 1.4;
-    }
-
-    /* Responsive Design */
-    @media (max-width: 600px) {
-      .header {
-        font-size: 20px;
-        padding: 15px;
-      }
-
-      .logo {
-        width: 40px;
-        height: 40px;
-        left: 15px;
-      }
-
-      .video-box {
-        margin: 0 10px;
-      }
-
-      .video-box img {
-        height: 150px;
-      }
-
-      .video-title {
-        font-size: 14px;
-        padding: 12px;
-      }
+      color: white;
     }
   </style>
 </head>
 
 <body oncontextmenu="return false">
 
-  <!-- Header Section -->
-  <div class="header">
-    <img src="https://upload.wikimedia.org/wikipedia/commons/6/6e/A._P._J._Abdul_Kalam.jpg" alt="Logo" class="logo">
-    STUDY - NEET 2026 📚
-  </div>
+  <div class="header">📚 NEET Lectures - Powered by BTF</div>
 
-  <!-- Small Header -->
-  <div class="small-header">Powered by BTF Group</div>
-
-  <!-- Video List -->
   <div id="videoContainer" class="video-container"></div>
 
-  <!-- Video JSON Fetch -->
   <script>
-    const jsonURL = "https://raw.githubusercontent.com/ydvkrn/Neet2026/refs/heads/main/home.json";
+    function loadVideos() {
+      const jsonURL = "https://raw.githubusercontent.com/ydvkrn/Neet2026/refs/heads/main/home.json";
 
-    fetch(jsonURL)
-      .then(response => {
-        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
-        return response.json();
-      })
-      .then(data => displayVideos(data))
-      .catch(error => console.error("JSON Load Error:", error));
+      fetch(jsonURL)
+        .then(res => {
+          if (!res.ok) throw new Error("Failed to load JSON");
+          return res.json();
+        })
+        .then(data => {
+          const container = document.getElementById("videoContainer");
+          container.innerHTML = "";
 
-    function displayVideos(videos) {
-      const container = document.getElementById("videoContainer");
-      container.innerHTML = "";
-
-      videos.forEach(video => {
-        const videoBox = document.createElement("div");
-        videoBox.classList.add("video-box");
-
-        videoBox.innerHTML = `
-          <img src="${video.thumbnail}" alt="Thumbnail">
-          <div class="video-title">${video.title}</div>
-        `;
-
-        videoBox.onclick = () => window.location.href = video.redirect;
-        container.appendChild(videoBox);
-      });
+          data.forEach(video => {
+            const div = document.createElement("div");
+            div.className = "video-box";
+            div.innerHTML = `
+              <img src="${video.thumbnail}" alt="Thumbnail">
+              <div class="video-title">${video.title}</div>
+            `;
+            div.onclick = () => window.location.href = video.redirect;
+            container.appendChild(div);
+          });
+        })
+        .catch(err => {
+          console.error("JSON Load Error:", err);
+          alert("📁 Video list load failed.");
+        });
     }
   </script>
+
 </body>
 </html>
