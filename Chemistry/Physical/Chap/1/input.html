@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="hi">
 <head>
   <meta charset="UTF-8">
   <title>Some Basic Concept of Chemistry</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
+  
   <!-- Hide content until Firebase auth check completes -->
   <style id="hideBodyStyle">
     body { display: none; background: #000; color: white; }
@@ -17,14 +17,12 @@
   <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/11.10.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/11.10.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/11.10.0/firebase-database-compat.js"></script>
 
-  <!-- Firebase Auth, Device ID, Logout on Another Login -->
+  <!-- Firebase Config & Auth -->
   <script>
     const firebaseConfig = {
       apiKey: "AIzaSyBosCBTgIDeRabFMkuqS_cbjkdHDcegFJw",
       authDomain: "msmneet1.firebaseapp.com",
-      databaseURL: "https://msmneet1-default-rtdb.firebaseio.com/",
       projectId: "msmneet1",
       storageBucket: "msmneet1.appspot.com",
       messagingSenderId: "920361933770",
@@ -32,51 +30,19 @@
     };
     firebase.initializeApp(firebaseConfig);
 
-    function getDeviceId() {
-      let id = localStorage.getItem("device_id_msmneet");
-      if (!id) {
-        id = Math.random().toString(36).substring(2) + Date.now().toString(36);
-        localStorage.setItem("device_id_msmneet", id);
-      }
-      return id;
-    }
-
-    firebase.auth().onAuthStateChanged(async (user) => {
+    firebase.auth().onAuthStateChanged((user) => {
       if (!user) {
         const host = window.location.hostname;
         const loginPath = host.includes("github.io") ? "/Neet2026/login.html" : "/login.html";
-        location.href = loginPath;
+        window.location.href = loginPath;
       } else {
-        const deviceId = getDeviceId();
-        const deviceRef = firebase.database().ref("activeDevices/" + user.uid);
-        const snapshot = await deviceRef.once("value");
-        const activeId = snapshot.val();
-        if (activeId && activeId !== deviceId) {
-          await firebase.auth().signOut();
-          localStorage.removeItem("device_id_msmneet");
-          alert("You have been logged out as your account was used on another device.");
-          location.reload();
-        } else {
-          await deviceRef.set(deviceId);
-          document.getElementById("hideBodyStyle")?.remove();
-          document.body.style.display = "block";
+        document.getElementById("hideBodyStyle")?.remove();
+        document.body.style.display = "block";
+        if (typeof loadVideos === "function") {
           setTimeout(loadVideos, 3000);
         }
       }
     });
-
-    async function logoutUser() {
-      const user = firebase.auth().currentUser;
-      if (user) {
-        const deviceId = getDeviceId();
-        await firebase.database().ref("activeDevices/" + user.uid).remove();
-        localStorage.removeItem("device_id_msmneet");
-        await firebase.auth().signOut();
-        const host = window.location.hostname;
-        const loginPath = host.includes("github.io") ? "/Neet2026/login.html" : "/login.html";
-        window.location.href = loginPath;
-      }
-    }
   </script>
 
   <style>
@@ -89,45 +55,31 @@
       min-height: 100vh;
       overflow: auto;
     }
-
     .hidden { display: none !important; }
-
     h2 {
       text-align: center;
       font-size: 26px;
       font-weight: 600;
       margin-bottom: 20px;
     }
-
     .video-list {
       display: flex;
       flex-direction: column;
       gap: 10px;
     }
-
     .video-item {
-      background: transparent;
-      border-radius: 0;
-      padding: 0;
-      box-shadow: none;
       cursor: pointer;
     }
-
     .thumbnail {
       width: 100%;
-      border-radius: 0;
       aspect-ratio: 16/9;
       object-fit: cover;
     }
-
     .video-title {
       font-size: 16px;
       margin: 4px 0 12px;
-      text-align: left;
       padding: 0 4px;
-      color: white;
     }
-
     #screen2 {
       background: #1e1e1e;
       border-radius: 10px;
@@ -135,15 +87,11 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
     }
-
     #videoTitle {
       font-size: 20px;
       margin: 10px 0;
-      text-align: center;
     }
-
     #backBtn {
       position: absolute;
       top: 10px;
@@ -151,9 +99,7 @@
       color: white;
       font-size: 20px;
       cursor: pointer;
-      z-index: 2;
     }
-
     #notesBtn {
       margin-top: 20px;
       background: transparent;
@@ -167,12 +113,8 @@
       align-items: center;
       gap: 8px;
     }
-
     #noticeBar {
-      position: fixed;
-      bottom: 15px;
-      left: 15px;
-      right: 15px;
+      margin-top: 15px;
       background: rgba(0, 0, 0, 0.6);
       padding: 10px;
       border-radius: 8px;
@@ -180,7 +122,6 @@
       color: #00ffcc;
       text-align: center;
     }
-
     video.plyr {
       width: 100%;
       max-height: 60vh;
@@ -188,7 +129,7 @@
       background: black;
     }
 
-    /* Loader Circle, Triangle, Rectangle */
+    /* Loader Styles */
     #screen1Loader {
       display: flex;
       flex-direction: column;
@@ -204,6 +145,7 @@
       width: 64px;
       height: 64px;
       position: relative;
+      display: inline-block;
       margin: 10px auto;
     }
 
@@ -223,12 +165,11 @@
     .loader svg {
       width: 100%;
       height: 100%;
-      display: block;
     }
 
+    .loader svg circle,
     .loader svg polygon,
-    .loader svg rect,
-    .loader svg circle {
+    .loader svg rect {
       fill: none;
       stroke: var(--path);
       stroke-width: 10px;
@@ -252,13 +193,7 @@
       animation: pathCircle var(--duration) ease-in-out infinite;
     }
 
-    .loader.triangle {
-      width: 72px;
-    }
-
     .loader.triangle:before {
-      left: 21px;
-      transform: translate(-10px, -18px);
       animation: dotTriangle var(--duration) ease-in-out infinite;
     }
 
@@ -314,7 +249,7 @@
   <div id="screen1" class="video-list hidden"></div>
 
   <div id="screen2" class="hidden">
-    <div id="backBtn" class="hidden"><strong></strong></div>
+    <div id="backBtn" class="hidden">←</div>
     <div id="videoTitle" class="hidden"></div>
     <video id="videoPlayer" class="plyr hidden" playsinline preload="auto" disablePictureInPicture controlsList="nodownload">
       <source id="videoSource" src="" type="video/mp4">
@@ -331,8 +266,9 @@
   <script src="https://cdn.plyr.io/3.7.8/plyr.polyfilled.js"></script>
   <script>
     const player = new Plyr('#videoPlayer', {
-      controls: ['play', 'rewind', 'fast-forward', 'progress', 'current-time', 'mute', 'settings', 'airplay', 'fullscreen'],
-      tooltips: { controls: true }
+      controls: ['rewind', 'play', 'fast-forward', 'progress', 'current-time', 'mute', 'fullscreen'],
+      tooltips: { controls: true },
+      seekTime: 10 // 10 sec skip
     });
 
     player.on('enterfullscreen', () => {
@@ -367,10 +303,17 @@
           const item = document.createElement("div");
           item.className = "video-item";
           item.onclick = () => showVideoScreen(vid);
-          item.innerHTML = `
-            <img src="${vid.thumbnail}" class="thumbnail" />
-            <div class="video-title">${vid.title}</div>
-          `;
+
+          const img = document.createElement("img");
+          img.src = vid.thumbnail;
+          img.className = "thumbnail";
+
+          const title = document.createElement("div");
+          title.className = "video-title";
+          title.textContent = vid.title;
+
+          item.appendChild(img);
+          item.appendChild(title);
           screen1.appendChild(item);
         });
       } catch {
@@ -381,6 +324,7 @@
 
     async function showVideoScreen(videoData) {
       history.pushState({ screen: 'screen2' }, '');
+
       screen1.classList.add("hidden");
       mainHeading.classList.add("hidden");
       screen2.classList.remove("hidden");
@@ -388,6 +332,7 @@
       const token = await generateToken();
       const videoUrl = `${workerBase}${videoData.id}&token=${token}`;
 
+      videoSource.src = videoUrl;
       player.source = {
         type: 'video',
         sources: [{ src: videoUrl, type: 'video/mp4' }]
@@ -419,6 +364,8 @@
       if (!screen1.classList.contains("hidden")) return;
       player.pause();
       player.source = null;
+      videoSource.src = "";
+
       screen2.classList.add("hidden");
       screen1.classList.remove("hidden");
       mainHeading.classList.remove("hidden");
