@@ -5,12 +5,16 @@
   <title>Lectures 📓</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- Hide content until Firebase auth check completes -->
+  <!-- Black background until login -->
   <style id="hideBodyStyle">
-    body { display: none; background: #000; color: white; }
+    html, body {
+      display: none;
+      background: #000 !important;
+      color: white !important;
+    }
   </style>
 
-  <!-- Plyr CSS -->
+  <!-- Plyr CSS & Fonts -->
   <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap" rel="stylesheet">
 
@@ -19,7 +23,7 @@
   <script src="https://www.gstatic.com/firebasejs/11.10.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/11.10.0/firebase-database-compat.js"></script>
 
-  <!-- Firebase Auth + 1 Device Check -->
+  <!-- Auth + 1 Device System -->
   <script>
     const firebaseConfig = {
       apiKey: "AIzaSyBosCBTgIDeRabFMkuqS_cbjkdHDcegFJw",
@@ -32,6 +36,7 @@
     };
     firebase.initializeApp(firebaseConfig);
 
+    // Unique device ID
     function getDeviceId() {
       let id = localStorage.getItem("device_id_msmneet");
       if (!id) {
@@ -70,15 +75,19 @@
           lastLogin: Date.now()
         });
 
-        document.getElementById("hideBodyStyle")?.remove();
+        // ✅ Auth success → Show page
+        const hider = document.getElementById("hideBodyStyle");
+        if (hider) hider.remove();
         document.body.style.display = "block";
 
+        // Optional video loader
         if (typeof loadVideos === "function") {
           setTimeout(loadVideos, 3000);
         }
+
       } catch (error) {
-        console.error("Firebase Device Check Error:", error);
-        alert("⚠️ Server error, please try again later.");
+        console.error("Device Check Error:", error);
+        alert("⚠️ Server error. Try again.");
         await firebase.auth().signOut();
         window.location.href = loginPath;
       }
