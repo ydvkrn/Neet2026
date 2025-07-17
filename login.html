@@ -209,7 +209,11 @@
         const stored = snap.val();
 
         if (stored && stored.deviceId && stored.deviceId !== deviceId) {
-          throw new Error("Already logged in on another device.");
+          const confirmOverwrite = confirm("🔐 This account is already logged in on another device.\nDo you want to logout from that device and continue here?");
+          if (!confirmOverwrite) {
+            await auth.signOut();
+            throw new Error("Login cancelled.");
+          }
         }
 
         await ref.set({ deviceId, lastLogin: Date.now() });
