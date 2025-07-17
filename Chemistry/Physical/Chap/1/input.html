@@ -5,7 +5,7 @@
   <title>Some Basic Concept of Chemistry</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- Hide content until Firebase auth check completes -->
+  <!-- Hide body initially -->
   <style id="hideBodyStyle">
     body { display: none; background: #000; color: white; }
   </style>
@@ -17,9 +17,8 @@
   <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/11.10.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/11.10.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/11.10.0/firebase-database-compat.js"></script>
 
-  <!-- Firebase Auth & Device Check -->
+  <!-- Firebase Auth Logic -->
   <script>
     const firebaseConfig = {
       apiKey: "AIzaSyBosCBTgIDeRabFMkuqS_cbjkdHDcegFJw",
@@ -31,64 +30,56 @@
     };
     firebase.initializeApp(firebaseConfig);
 
-    function getDeviceId() {
-      let id = localStorage.getItem("device_id_msmneet");
-      if (!id) {
-        id = Math.random().toString(36).substring(2) + Date.now().toString(36);
-        localStorage.setItem("device_id_msmneet", id);
-      }
-      return id;
-    }
-
     firebase.auth().onAuthStateChanged((user) => {
       if (!user) {
         const host = window.location.hostname;
         let loginPath = host.includes("github.io") ? "/Neet2026/login.html" : "/login.html";
-        location.href = loginPath;
+        window.location.href = loginPath;
       } else {
         document.getElementById("hideBodyStyle")?.remove();
         document.body.style.display = "block";
-
-        const ref = firebase.database().ref("activeDevices/" + user.uid);
-        const currentDeviceId = getDeviceId();
-
-        setInterval(async () => {
-          const snap = await ref.get();
-          const stored = snap.val();
-          if (!stored || stored.deviceId !== currentDeviceId) {
-            await firebase.auth().signOut();
-            alert("⚠️ Logged out: Your account was accessed from another device.");
-            const host = window.location.hostname;
-            const loginPath = host.includes("github.io") ? "/Neet2026/login.html" : "/login.html";
-            location.href = loginPath;
-          }
-        }, 10000);
+        if (typeof loadVideos === "function") {
+          setTimeout(loadVideos, 3000);
+        }
       }
     });
   </script>
 
+  <!-- Keep your existing style untouched -->
   <style>
-    /* ... SAME CSS AS BEFORE ... (already included in your previous code) */
-    /* No changes needed in your existing styles */
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: #000;
+      color: white;
+      margin: 0;
+      padding: 20px;
+      min-height: 100vh;
+      overflow: auto;
+    }
+    h2 {
+      text-align: center;
+      font-size: 26px;
+      font-weight: 600;
+      margin-bottom: 20px;
+    }
+    .hidden { display: none !important; }
+    .video-list { display: flex; flex-direction: column; gap: 10px; }
+    .video-item { cursor: pointer; }
+    .thumbnail { width: 100%; aspect-ratio: 16/9; object-fit: cover; }
+    .video-title { font-size: 16px; margin: 4px 0 12px; text-align: left; padding: 0 4px; }
+
+    #screen2 { background: #1e1e1e; border-radius: 10px; padding: 15px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+    #videoTitle { font-size: 20px; margin: 10px 0; text-align: center; }
+    #backBtn { position: absolute; top: 10px; left: 10px; color: white; font-size: 20px; cursor: pointer; z-index: 2; }
+    #notesBtn { margin-top: 20px; background: transparent; border: 2px solid #00ffcc; padding: 12px 24px; color: #00ffcc; border-radius: 8px; text-decoration: none; font-size: 16px; display: flex; align-items: center; gap: 8px; }
+    #noticeBar { position: fixed; bottom: 15px; left: 15px; right: 15px; background: rgba(0, 0, 0, 0.6); padding: 10px; border-radius: 8px; font-weight: bold; color: #00ffcc; text-align: center; }
+    video.plyr { width: 100%; max-height: 60vh; border-radius: 10px; background: black; }
   </style>
 </head>
-
 <body oncontextmenu="return false">
   <h2 id="mainHeading">Some Basic Concept of Chemistry 🧪</h2>
 
-  <div id="screen1Loader">
-    <div class="loader">
-      <svg viewBox="0 0 80 80"><circle cx="40" cy="40" r="32"></circle></svg>
-    </div>
-    <div class="loader triangle">
-      <svg viewBox="0 0 86 80"><polygon points="43 8 79 72 7 72"></polygon></svg>
-    </div>
-    <div class="loader">
-      <svg viewBox="0 0 80 80"><rect x="8" y="8" width="64" height="64"></rect></svg>
-    </div>
-  </div>
-
-  <div id="screen1" class="video-list hidden"></div>
+  <div id="screen1" class="video-list"></div>
 
   <div id="screen2" class="hidden">
     <div id="backBtn" class="hidden"><strong></strong></div>
@@ -100,9 +91,7 @@
       <img src="https://i.postimg.cc/3xzNQhMV/pdf-icon-4.png" alt="PDF Icon" width="20">
       Download Notes
     </a>
-    <div id="noticeBar" class="hidden">
-      <span id="noticeText"></span>
-    </div>
+    <div id="noticeBar" class="hidden"><span id="noticeText"></span></div>
   </div>
 
   <script src="https://cdn.plyr.io/3.7.8/plyr.polyfilled.js"></script>
@@ -123,7 +112,6 @@
 
     const screen1 = document.getElementById("screen1");
     const screen2 = document.getElementById("screen2");
-    const screen1Loader = document.getElementById("screen1Loader");
     const mainHeading = document.getElementById("mainHeading");
     const videoTitle = document.getElementById("videoTitle");
     const notesBtn = document.getElementById("notesBtn");
@@ -137,8 +125,6 @@
       try {
         const res = await fetch(jsonUrl);
         const data = await res.json();
-        screen1Loader.classList.add("hidden");
-        screen1.classList.remove("hidden");
         screen1.innerHTML = "";
         data.videos.forEach(vid => {
           const item = document.createElement("div");
@@ -159,15 +145,11 @@
         });
       } catch {
         screen1.innerHTML = '<div class="error">❌ वीडियो लोड करने में त्रुटि।</div>';
-        screen1Loader.classList.add("hidden");
       }
     }
 
-    setTimeout(loadVideos, 3000);
-
     async function showVideoScreen(videoData) {
       history.pushState({ screen: 'screen2' }, '');
-
       screen1.classList.add("hidden");
       mainHeading.classList.add("hidden");
       screen2.classList.remove("hidden");
@@ -199,9 +181,7 @@
       player.play();
     }
 
-    backBtn.onclick = () => {
-      history.back();
-    };
+    backBtn.onclick = () => history.back();
 
     window.addEventListener("popstate", () => {
       if (!screen1.classList.contains("hidden")) return;
@@ -224,12 +204,13 @@
       const SECRET = "BTFxMSM0PCChap1";
       const timestamp = Math.floor(Date.now() / 1000);
       const msg = timestamp + SECRET;
-
       const hashBuffer = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(msg));
       const hashArray = Array.from(new Uint8Array(hashBuffer));
       const hashHex = hashArray.map(b => b.toString(16).padStart(2, "0")).join("");
       return `${timestamp}.${hashHex}`;
     }
+
+    setTimeout(loadVideos, 3000);
   </script>
 </body>
 </html>
