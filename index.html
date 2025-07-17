@@ -1,18 +1,25 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
   <title>Study</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- Hide body till login check -->
-  <style id="hideBodyStyle">body { display: none; }</style>
+  <!-- Hide content until Firebase auth check completes -->
+  <style id="hideBodyStyle">
+    body { display: none; background: #000; color: white; }
+  </style>
+
+  <!-- Plyr CSS -->
+  <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap" rel="stylesheet">
 
   <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/11.10.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/11.10.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/11.10.0/firebase-database-compat.js"></script>
 
-  <!-- Firebase Auth Check -->
+  <!-- Firebase Auth + 1 Device Limit System -->
   <script>
     const firebaseConfig = {
       apiKey: "AIzaSyBosCBTgIDeRabFMkuqS_cbjkdHDcegFJw",
@@ -20,18 +27,66 @@
       projectId: "msmneet1",
       storageBucket: "msmneet1.appspot.com",
       messagingSenderId: "920361933770",
-      appId: "1:920361933770:web:4dba802da04a8548348d33"
+      appId: "1:920361933770:web:4dba802da04a8548348d33",
+      databaseURL: "https://msmneet1-default-rtdb.asia-southeast1.firebasedatabase.app"
     };
     firebase.initializeApp(firebaseConfig);
-    firebase.auth().onAuthStateChanged((user) => {
+
+    // Generate or get device ID from localStorage
+    function generateDeviceId() {
+      let id = localStorage.getItem("device_id_msmneet");
+      if (!id) {
+        id = Math.random().toString(36).substring(2) + Date.now().toString(36);
+        localStorage.setItem("device_id_msmneet", id);
+      }
+      return id;
+    }
+
+    firebase.auth().onAuthStateChanged(async (user) => {
       if (!user) {
-        window.location.href = "login.html";
-      } else {
+        // 🔁 Dynamic redirect
+        const host = window.location.hostname;
+        const loginPath = host.includes("github.io") ? "/Neet2026/login.html" : "/login.html";
+        window.location.href = loginPath;
+        return;
+      }
+
+      const uid = user.uid;
+      const deviceId = generateDeviceId();
+      const ref = firebase.database().ref("activeDevices/" + uid);
+
+      try {
+        const snapshot = await ref.get();
+        const storedDeviceId = snapshot.val()?.deviceId;
+
+        if (storedDeviceId && storedDeviceId !== deviceId) {
+          alert("❌ This account is already logged in on another device.");
+          await firebase.auth().signOut();
+          window.location.href = host.includes("github.io") ? "/Neet2026/login.html" : "/login.html";
+          return;
+        }
+
+        // Save/update this device ID
+        await ref.set({
+          deviceId: deviceId,
+          lastLogin: Date.now()
+        });
+
+        // ✅ Show content
         document.getElementById("hideBodyStyle")?.remove();
         document.body.style.display = "block";
+
+        if (typeof loadVideos === "function") {
+          setTimeout(loadVideos, 3000);
+        }
+      } catch (err) {
+        console.error("Firebase device check failed:", err);
+        alert("⚠️ Error connecting to server. Try again.");
+        firebase.auth().signOut();
       }
     });
   </script>
+</head>
 
   <!-- Updated Professional Styling -->
   <style>
