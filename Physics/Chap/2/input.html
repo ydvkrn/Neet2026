@@ -17,12 +17,14 @@
   <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/11.10.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/11.10.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/11.10.0/firebase-database-compat.js"></script>
 
-  <!-- Firebase Auth & Unlock Content -->
+  <!-- Firebase Auth & Device Check -->
   <script>
     const firebaseConfig = {
       apiKey: "AIzaSyBosCBTgIDeRabFMkuqS_cbjkdHDcegFJw",
       authDomain: "msmneet1.firebaseapp.com",
+      databaseURL: "https://msmneet1-default-rtdb.firebaseio.com/",
       projectId: "msmneet1",
       storageBucket: "msmneet1.appspot.com",
       messagingSenderId: "920361933770",
@@ -30,31 +32,60 @@
     };
     firebase.initializeApp(firebaseConfig);
 
-    firebase.auth().onAuthStateChanged((user) => {
+    function getDeviceId() {
+      let id = localStorage.getItem("device_id_msmneet");
+      if (!id) {
+        id = Math.random().toString(36).substring(2) + Date.now().toString(36);
+        localStorage.setItem("device_id_msmneet", id);
+      }
+      return id;
+    }
+
+    firebase.auth().onAuthStateChanged(async (user) => {
       if (!user) {
-        // Dynamic login redirect based on domain
         const host = window.location.hostname;
-        let loginPath = "";
-
-        if (host.includes("github.io")) {
-          loginPath = "/Neet2026/login.html";
-        } else {
-          loginPath = "/login.html";
-        }
-
-        window.location.href = loginPath;
+        let loginPath = host.includes("github.io") ? "/Neet2026/login.html" : "/login.html";
+        location.href = loginPath;
       } else {
         document.getElementById("hideBodyStyle")?.remove();
         document.body.style.display = "block";
 
-        // Load videos or data after login
         if (typeof loadVideos === "function") {
           setTimeout(loadVideos, 3000);
         }
+
+        // Check device ID
+        const ref = firebase.database().ref("activeDevices/" + user.uid);
+        const currentDevice = getDeviceId();
+
+        setInterval(async () => {
+          const snap = await ref.get();
+          const stored = snap.val();
+          if (!stored || stored.deviceId !== currentDevice) {
+            await firebase.auth().signOut();
+            alert("⚠️ You've been logged out as your account was accessed from another device.");
+            window.location.href = window.location.hostname.includes("github.io")
+              ? "/Neet2026/login.html"
+              : "/login.html";
+          }
+        }, 10000);
       }
     });
+
+    async function logoutUser() {
+      const user = firebase.auth().currentUser;
+      if (user) {
+        const deviceId = getDeviceId();
+        await firebase.database().ref("activeDevices/" + user.uid).remove();
+        localStorage.removeItem("device_id_msmneet");
+        await firebase.auth().signOut();
+        window.location.href = window.location.hostname.includes("github.io")
+          ? "/Neet2026/login.html"
+          : "/login.html";
+      }
+    }
   </script>
-</head>
+
   <style>
     body {
       font-family: 'Poppins', sans-serif;
@@ -274,10 +305,25 @@
       75% { stroke-dashoffset: 225; }
       100% { stroke-dashoffset: 275; }
     }
+
+    /* Optional logout button */
+    #logoutBtn {
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      background: transparent;
+      color: white;
+      border: 1px solid white;
+      border-radius: 6px;
+      padding: 5px 10px;
+      cursor: pointer;
+      z-index: 999;
+    }
   </style>
 </head>
 <body oncontextmenu="return false">
-  <h2 id="mainHeading">Vector by Saleem Sir</h2>
+  <button id="logoutBtn" onclick="logoutUser()">Logout</button>
+  <h2 id="mainHeading">Vector By Saleem Sir</h2>
 
   <div id="screen1Loader">
     <div class="loader">
@@ -294,7 +340,7 @@
   <div id="screen1" class="video-list hidden"></div>
 
   <div id="screen2" class="hidden">
-    <div id="backBtn" class="hidden"><strong></strong></div>
+    <div id="backBtn" class="hidden"><strong>←</strong></div>
     <div id="videoTitle" class="hidden"></div>
     <video id="videoPlayer" class="plyr hidden" playsinline preload="auto" disablePictureInPicture controlsList="nodownload">
       <source id="videoSource" src="" type="video/mp4">
@@ -321,7 +367,7 @@
       }
     });
 
-    const jsonUrl = "https://raw.githubusercontent.com/ydvkrn/Neet2026/main/Physics/Chap/2/files.json";
+    const jsonUrl = "https://raw.githubusercontent.com/ydvkrn/Neet2026/main/Physics/Physics/Chap/2/files.json";
     const workerBase = "https://physics-chap2.btfcompany1.workers.dev/?id=";
 
     const screen1 = document.getElementById("screen1");
@@ -369,7 +415,7 @@
     setTimeout(loadVideos, 3000);
 
     async function showVideoScreen(videoData) {
-      history.pushState({ screen: 'screen2' }, ''); // Mobile back support
+      history.pushState({ screen: 'screen2' }, '');
 
       screen1.classList.add("hidden");
       mainHeading.classList.add("hidden");
@@ -403,7 +449,7 @@
     }
 
     backBtn.onclick = () => {
-      history.back(); // Go back via history API
+      history.back();
     };
 
     window.addEventListener("popstate", () => {
