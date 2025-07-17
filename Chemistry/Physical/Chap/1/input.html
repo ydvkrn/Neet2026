@@ -5,7 +5,6 @@
   <title>Some Basic Concept of Chemistry</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- Hide content until Firebase auth check completes -->
   <style id="hideBodyStyle">
     body { display: none; background: #000; color: white; }
   </style>
@@ -18,53 +17,7 @@
   <script src="https://www.gstatic.com/firebasejs/11.10.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/11.10.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/11.10.0/firebase-database-compat.js"></script>
-</head>
 
-<body oncontextmenu="return false">
-  <h2 id="mainHeading">Some Basic Concept of Chemistry 🧪</h2>
-
-  <!-- Loader Section -->
-  <div id="screen1Loader">
-    <div class="loader">
-      <svg viewBox="0 0 80 80"><circle cx="40" cy="40" r="32"></circle></svg>
-    </div>
-    <div class="loader triangle">
-      <svg viewBox="0 0 86 80"><polygon points="43 8 79 72 7 72"></polygon></svg>
-    </div>
-    <div class="loader">
-      <svg viewBox="0 0 80 80"><rect x="8" y="8" width="64" height="64"></rect></svg>
-    </div>
-  </div>
-
-  <!-- Video List -->
-  <div id="screen1" class="video-list hidden"></div>
-
-  <!-- Video Player Section -->
-  <div id="screen2" class="hidden">
-    <div id="backBtn" class="hidden"><strong></strong></div>
-    <div id="videoTitle" class="hidden"></div>
-    <video id="videoPlayer" class="plyr hidden" playsinline preload="auto" disablePictureInPicture controlsList="nodownload">
-      <source id="videoSource" src="" type="video/mp4">
-    </video>
-    <a id="notesBtn" href="#" target="_blank" class="hidden">
-      <img src="https://i.postimg.cc/3xzNQhMV/pdf-icon-4.png" alt="PDF Icon" width="20">
-      Download Notes
-    </a>
-    <div id="noticeBar" class="hidden">
-      <span id="noticeText"></span>
-    </div>
-  </div>
-
-  <!-- Styles + Loader CSS -->
-  <style>
-    /* Pura CSS same hai tumhara - loader, layout, theme */
-    /* ... (tumhara existing CSS here - कोई भी बदलाव नहीं किया) ... */
-  </style>
-
-  <!-- Plyr JS -->
-  <script src="https://cdn.plyr.io/3.7.8/plyr.polyfilled.js"></script>
-
-  <!-- Firebase + Device ID + Auto Logout -->
   <script>
     const firebaseConfig = {
       apiKey: "AIzaSyBosCBTgIDeRabFMkuqS_cbjkdHDcegFJw",
@@ -87,45 +40,242 @@
     }
 
     firebase.auth().onAuthStateChanged(async (user) => {
-      const host = window.location.hostname;
-      const loginPath = host.includes("github.io") ? "/Neet2026/login.html" : "/login.html";
-
       if (!user) {
+        const host = window.location.hostname;
+        const loginPath = host.includes("github.io") ? "/Neet2026/login.html" : "/login.html";
         location.href = loginPath;
       } else {
+        const uid = user.uid;
+        const currentDevice = getDeviceId();
+        const deviceRef = firebase.database().ref("activeDevices/" + uid);
+        const snapshot = await deviceRef.once("value");
+        const data = snapshot.val();
+
+        if (data && data !== currentDevice) {
+          await firebase.auth().signOut();
+          alert("आपका अकाउंट किसी और डिवाइस पर login किया गया है।");
+          location.reload();
+          return;
+        }
+
+        await deviceRef.set(currentDevice);
         document.getElementById("hideBodyStyle")?.remove();
         document.body.style.display = "block";
-
-        const deviceId = getDeviceId();
-        const userRef = firebase.database().ref("activeDevices/" + user.uid);
-        await userRef.set(deviceId);
-
-        // Listen for device change and force logout
-        userRef.on("value", (snapshot) => {
-          const activeId = snapshot.val();
-          if (activeId !== deviceId) {
-            alert("आपका अकाउंट किसी और डिवाइस में लॉगिन हो चुका है।");
-            localStorage.removeItem("device_id_msmneet");
-            firebase.auth().signOut().then(() => location.href = loginPath);
-          }
-        });
-
-        setTimeout(loadVideos, 3000);
+        if (typeof loadVideos === "function") setTimeout(loadVideos, 3000);
       }
     });
   </script>
 
-  <!-- Main Logic -->
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: #000;
+      color: white;
+      margin: 0;
+      padding: 20px;
+      min-height: 100vh;
+    }
+
+    h2 {
+      text-align: center;
+      font-size: 26px;
+      font-weight: 600;
+      margin-bottom: 20px;
+    }
+
+    .video-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .video-item {
+      cursor: pointer;
+    }
+
+    .thumbnail {
+      width: 100%;
+      aspect-ratio: 16/9;
+      object-fit: cover;
+    }
+
+    .video-title {
+      font-size: 16px;
+      margin: 6px 0 12px;
+    }
+
+    #screen2 {
+      background: #1e1e1e;
+      border-radius: 10px;
+      padding: 15px;
+    }
+
+    video.plyr {
+      width: 100%;
+      max-height: 60vh;
+      border-radius: 10px;
+      background: black;
+    }
+
+    .hidden { display: none !important; }
+
+    #backBtn {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      color: white;
+      font-size: 20px;
+      cursor: pointer;
+      z-index: 2;
+    }
+
+    #videoTitle {
+      font-size: 20px;
+      margin: 10px 0;
+      text-align: center;
+    }
+
+    #notesBtn {
+      margin-top: 20px;
+      background: transparent;
+      border: 2px solid #00ffcc;
+      padding: 12px 24px;
+      color: #00ffcc;
+      border-radius: 8px;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 16px;
+    }
+
+    #noticeBar {
+      position: fixed;
+      bottom: 15px;
+      left: 15px;
+      right: 15px;
+      background: rgba(0, 0, 0, 0.6);
+      padding: 10px;
+      border-radius: 8px;
+      color: #00ffcc;
+      text-align: center;
+      font-weight: bold;
+    }
+
+    /* 🔁 Loader */
+    #screen1Loader {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 80vh;
+    }
+
+    .loader {
+      --path: white;
+      --dot: #00ffcc;
+      --duration: 3s;
+      width: 64px;
+      height: 64px;
+      position: relative;
+    }
+
+    .loader:before {
+      content: "";
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--dot);
+      position: absolute;
+      top: 37px;
+      left: 19px;
+      animation: dotRect var(--duration) infinite ease-in-out;
+    }
+
+    .loader svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    .loader rect {
+      stroke: var(--path);
+      stroke-width: 10px;
+      fill: none;
+      stroke-dasharray: 192 64;
+      animation: pathRect var(--duration) infinite ease-in-out;
+    }
+
+    .loader.triangle {
+      width: 72px;
+    }
+
+    .loader.triangle:before {
+      left: 21px;
+      animation: dotTriangle var(--duration) ease-in-out infinite;
+    }
+
+    .loader polygon {
+      stroke: var(--path);
+      stroke-width: 10px;
+      fill: none;
+      stroke-dasharray: 145 76;
+      animation: pathTriangle var(--duration) infinite ease-in-out;
+    }
+
+    @keyframes pathTriangle {
+      33% { stroke-dashoffset: 74; }
+      66% { stroke-dashoffset: 147; }
+      100% { stroke-dashoffset: 221; }
+    }
+
+    @keyframes dotTriangle {
+      33% { transform: translate(0, 0); }
+      66% { transform: translate(10px, -18px); }
+      100% { transform: translate(-10px, -18px); }
+    }
+
+    @keyframes pathRect {
+      25% { stroke-dashoffset: 64; }
+      50% { stroke-dashoffset: 128; }
+      75% { stroke-dashoffset: 192; }
+      100% { stroke-dashoffset: 256; }
+    }
+
+    @keyframes dotRect {
+      25% { transform: translate(0, 0); }
+      50% { transform: translate(18px, -18px); }
+      75% { transform: translate(0, -36px); }
+      100% { transform: translate(-18px, -18px); }
+    }
+  </style>
+</head>
+<body oncontextmenu="return false">
+  <h2>Some Basic Concept of Chemistry 🧪</h2>
+
+  <div id="screen1Loader">
+    <div class="loader">
+      <svg viewBox="0 0 80 80"><rect x="8" y="8" width="64" height="64"/></svg>
+    </div>
+    <div class="loader triangle">
+      <svg viewBox="0 0 86 80"><polygon points="43 8 79 72 7 72"/></svg>
+    </div>
+  </div>
+
+  <div id="screen1" class="video-list hidden"></div>
+
+  <div id="screen2" class="hidden">
+    <div id="backBtn" class="hidden"><strong></strong></div>
+    <div id="videoTitle" class="hidden"></div>
+    <video id="videoPlayer" class="plyr hidden" playsinline preload="auto" disablePictureInPicture controlsList="nodownload">
+      <source id="videoSource" src="" type="video/mp4">
+    </video>
+    <a id="notesBtn" href="#" target="_blank" class="hidden">📄 Download Notes</a>
+    <div id="noticeBar" class="hidden"><span id="noticeText"></span></div>
+  </div>
+
+  <script src="https://cdn.plyr.io/3.7.8/plyr.polyfilled.js"></script>
   <script>
     const player = new Plyr('#videoPlayer', {
-      controls: ['play', 'rewind', 'fast-forward', 'progress', 'current-time', 'mute', 'settings', 'airplay', 'fullscreen'],
+      controls: ['play', 'rewind', 'fast-forward', 'progress', 'current-time', 'mute', 'fullscreen'],
       tooltips: { controls: true }
-    });
-
-    player.on('enterfullscreen', () => {
-      if (screen.orientation && screen.orientation.lock) {
-        screen.orientation.lock('landscape').catch(() => {});
-      }
     });
 
     const jsonUrl = "https://raw.githubusercontent.com/ydvkrn/Neet2026/main/Chemistry/Physical/Chap/1/files.json";
@@ -133,13 +283,12 @@
 
     const screen1 = document.getElementById("screen1");
     const screen2 = document.getElementById("screen2");
-    const screen1Loader = document.getElementById("screen1Loader");
-    const mainHeading = document.getElementById("mainHeading");
+    const loader = document.getElementById("screen1Loader");
     const videoTitle = document.getElementById("videoTitle");
     const notesBtn = document.getElementById("notesBtn");
+    const backBtn = document.getElementById("backBtn");
     const videoPlayer = document.getElementById("videoPlayer");
     const videoSource = document.getElementById("videoSource");
-    const backBtn = document.getElementById("backBtn");
     const noticeBar = document.getElementById("noticeBar");
     const noticeText = document.getElementById("noticeText");
 
@@ -147,51 +296,46 @@
       try {
         const res = await fetch(jsonUrl);
         const data = await res.json();
-        screen1Loader.classList.add("hidden");
+        loader.classList.add("hidden");
         screen1.classList.remove("hidden");
-        screen1.innerHTML = "";
-        data.videos.forEach(vid => {
+        data.videos.forEach(video => {
           const item = document.createElement("div");
           item.className = "video-item";
-          item.onclick = () => showVideoScreen(vid);
-          item.innerHTML = `
-            <img src="${vid.thumbnail}" class="thumbnail">
-            <div class="video-title">${vid.title}</div>
-          `;
+          item.onclick = () => showVideoScreen(video);
+          item.innerHTML = `<img class="thumbnail" src="${video.thumbnail}"><div class="video-title">${video.title}</div>`;
           screen1.appendChild(item);
         });
       } catch {
+        loader.classList.add("hidden");
         screen1.innerHTML = '<div class="error">❌ वीडियो लोड करने में त्रुटि।</div>';
-        screen1Loader.classList.add("hidden");
+        screen1.classList.remove("hidden");
       }
     }
 
-    async function showVideoScreen(videoData) {
+    async function showVideoScreen(video) {
       history.pushState({ screen: 'screen2' }, '');
+
       screen1.classList.add("hidden");
-      mainHeading.classList.add("hidden");
       screen2.classList.remove("hidden");
 
       const token = await generateToken();
-      const videoUrl = `${workerBase}${videoData.id}&token=${token}`;
+      const videoUrl = `${workerBase}${video.id}&token=${token}`;
       videoSource.src = videoUrl;
       player.source = {
         type: 'video',
         sources: [{ src: videoUrl, type: 'video/mp4' }]
       };
-
       videoPlayer.classList.remove("hidden");
-      videoTitle.textContent = videoData.title;
+      videoTitle.textContent = video.title;
       videoTitle.classList.remove("hidden");
       backBtn.classList.remove("hidden");
 
-      if (videoData.pdfUrl?.trim()) {
-        notesBtn.href = videoData.pdfUrl;
+      if (video.pdfUrl?.trim()) {
+        notesBtn.href = video.pdfUrl;
         notesBtn.classList.remove("hidden");
       }
-
-      if (videoData.notice?.trim()) {
-        noticeText.textContent = videoData.notice;
+      if (video.notice?.trim()) {
+        noticeText.textContent = video.notice;
         noticeBar.classList.remove("hidden");
       }
 
@@ -201,15 +345,11 @@
     backBtn.onclick = () => history.back();
 
     window.addEventListener("popstate", () => {
-      if (!screen1.classList.contains("hidden")) return;
       player.pause();
       player.source = null;
       videoSource.src = "";
-
       screen2.classList.add("hidden");
       screen1.classList.remove("hidden");
-      mainHeading.classList.remove("hidden");
-
       videoPlayer.classList.add("hidden");
       videoTitle.classList.add("hidden");
       notesBtn.classList.add("hidden");
@@ -226,6 +366,8 @@
       const hashHex = hashArray.map(b => b.toString(16).padStart(2, "0")).join("");
       return `${timestamp}.${hashHex}`;
     }
+
+    setTimeout(loadVideos, 3000);
   </script>
 </body>
 </html>
