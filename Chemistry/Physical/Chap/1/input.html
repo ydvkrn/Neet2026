@@ -85,6 +85,13 @@
       font-size: 20px;
       margin: 10px 0;
     }
+    #backBtn {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      font-size: 20px;
+      cursor: pointer;
+    }
     #notesBtn {
       margin-top: 20px;
       background: transparent;
@@ -224,6 +231,7 @@
   <div id="screen1" class="video-list hidden"></div>
 
   <div id="screen2" class="hidden">
+    <div id="backBtn" class="hidden"><strong></strong></div>
     <div id="videoTitle" class="hidden"></div>
     <video id="videoPlayer" class="plyr hidden" playsinline preload="auto" disablePictureInPicture controlsList="nodownload">
       <source id="videoSource" src="" type="video/mp4">
