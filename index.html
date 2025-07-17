@@ -2,24 +2,24 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Study</title>
+  <title>Vector By Saleem Sir</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- Hide content until Firebase auth check completes -->
+  <!-- Hide body until Firebase auth completes -->
   <style id="hideBodyStyle">
     body { display: none; background: #000; color: white; }
   </style>
 
-  <!-- Plyr CSS -->
+  <!-- Plyr CSS (if video used) -->
   <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap" rel="stylesheet" />
 
-  <!-- Firebase SDK -->
+  <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/11.10.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/11.10.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/11.10.0/firebase-database-compat.js"></script>
 
-  <!-- Firebase Auth + 1 Device Limit System -->
+  <!-- Firebase Config + 1 Device Lock System -->
   <script>
     const firebaseConfig = {
       apiKey: "AIzaSyBosCBTgIDeRabFMkuqS_cbjkdHDcegFJw",
@@ -32,8 +32,7 @@
     };
     firebase.initializeApp(firebaseConfig);
 
-    // Generate or get device ID from localStorage
-    function generateDeviceId() {
+    function getDeviceId() {
       let id = localStorage.getItem("device_id_msmneet");
       if (!id) {
         id = Math.random().toString(36).substring(2) + Date.now().toString(36);
@@ -43,46 +42,48 @@
     }
 
     firebase.auth().onAuthStateChanged(async (user) => {
+      const host = window.location.hostname;
+      const loginPath = host.includes("github.io") ? "/Neet2026/login.html" : "/login.html";
+
       if (!user) {
-        // 🔁 Dynamic redirect
-        const host = window.location.hostname;
-        const loginPath = host.includes("github.io") ? "/Neet2026/login.html" : "/login.html";
         window.location.href = loginPath;
         return;
       }
 
       const uid = user.uid;
-      const deviceId = generateDeviceId();
-      const ref = firebase.database().ref("activeDevices/" + uid);
+      const currentDeviceId = getDeviceId();
+      const sessionRef = firebase.database().ref("activeDevices/" + uid);
 
       try {
-        const snapshot = await ref.get();
-        const storedDeviceId = snapshot.val()?.deviceId;
+        const snapshot = await sessionRef.get();
+        const savedDeviceId = snapshot.val()?.deviceId;
 
-        if (storedDeviceId && storedDeviceId !== deviceId) {
-          alert("❌ This account is already logged in on another device.");
+        if (savedDeviceId && savedDeviceId !== currentDeviceId) {
+          alert("🚫 Your account is already logged in on another device.");
           await firebase.auth().signOut();
-          window.location.href = host.includes("github.io") ? "/Neet2026/login.html" : "/login.html";
+          window.location.href = loginPath;
           return;
         }
 
-        // Save/update this device ID
-        await ref.set({
-          deviceId: deviceId,
+        await sessionRef.set({
+          deviceId: currentDeviceId,
           lastLogin: Date.now()
         });
 
-        // ✅ Show content
+        // Show page content
         document.getElementById("hideBodyStyle")?.remove();
         document.body.style.display = "block";
 
+        // Optional: Trigger content load
         if (typeof loadVideos === "function") {
           setTimeout(loadVideos, 3000);
         }
-      } catch (err) {
-        console.error("Firebase device check failed:", err);
-        alert("⚠️ Error connecting to server. Try again.");
-        firebase.auth().signOut();
+
+      } catch (error) {
+        console.error("❌ Session check error:", error);
+        alert("⚠️ Error connecting to database.");
+        await firebase.auth().signOut();
+        window.location.href = loginPath;
       }
     });
   </script>
