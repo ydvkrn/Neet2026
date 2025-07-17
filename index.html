@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Vector By Saleem Sir</title>
+  <title>Lectures 📓</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <!-- Hide content until Firebase auth check completes -->
@@ -19,7 +19,7 @@
   <script src="https://www.gstatic.com/firebasejs/11.10.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/11.10.0/firebase-database-compat.js"></script>
 
-  <!-- Firebase Auth + 1 Device Limit -->
+  <!-- Firebase Auth + 1 Device Check -->
   <script>
     const firebaseConfig = {
       apiKey: "AIzaSyBosCBTgIDeRabFMkuqS_cbjkdHDcegFJw",
@@ -52,35 +52,33 @@
 
       const uid = user.uid;
       const currentDeviceId = getDeviceId();
-      const sessionRef = firebase.database().ref("activeDevices/" + uid);
+      const ref = firebase.database().ref("activeDevices/" + uid);
 
       try {
-        const snapshot = await sessionRef.get();
+        const snapshot = await ref.get();
         const savedDeviceId = snapshot.val()?.deviceId;
 
         if (savedDeviceId && savedDeviceId !== currentDeviceId) {
-          alert("🚫 This account is already logged in on another device.");
+          alert("❌ This account is already logged in on another device.");
           await firebase.auth().signOut();
           window.location.href = loginPath;
           return;
         }
 
-        await sessionRef.set({
+        await ref.set({
           deviceId: currentDeviceId,
           lastLogin: Date.now()
         });
 
-        // ✅ Unlock content
         document.getElementById("hideBodyStyle")?.remove();
         document.body.style.display = "block";
 
-        // If page has loadVideos() defined later, run it
         if (typeof loadVideos === "function") {
           setTimeout(loadVideos, 3000);
         }
       } catch (error) {
-        console.error("Session check error:", error);
-        alert("⚠️ Error connecting to database.");
+        console.error("Firebase Device Check Error:", error);
+        alert("⚠️ Server error, please try again later.");
         await firebase.auth().signOut();
         window.location.href = loginPath;
       }
