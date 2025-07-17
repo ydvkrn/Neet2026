@@ -2,180 +2,176 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Lectures 📓</title>
+  <title>Study</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- Body initially hidden -->
+  <!-- Hide content until Firebase auth check completes -->
   <style id="hideBodyStyle">
-    html, body {
-      display: none;
-      background: #000;
-      color: white;
-      margin: 0;
-      padding: 0;
-    }
+    body { display: none; background: #000; color: white; }
   </style>
 
-  <!-- CSS & Fonts -->
+  <!-- Plyr CSS -->
   <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap" rel="stylesheet">
 
-  <!-- Firebase SDKs -->
+  <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/11.10.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/11.10.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/11.10.0/firebase-database-compat.js"></script>
 
+  <!-- Firebase Auth & Unlock Content -->
   <script>
-    // ✅ Firebase Config
     const firebaseConfig = {
       apiKey: "AIzaSyBosCBTgIDeRabFMkuqS_cbjkdHDcegFJw",
       authDomain: "msmneet1.firebaseapp.com",
       projectId: "msmneet1",
       storageBucket: "msmneet1.appspot.com",
       messagingSenderId: "920361933770",
-      appId: "1:920361933770:web:4dba802da04a8548348d33",
-      databaseURL: "https://msmneet1-default-rtdb.asia-southeast1.firebasedatabase.app"
+      appId: "1:920361933770:web:4dba802da04a8548348d33"
     };
     firebase.initializeApp(firebaseConfig);
 
-    // ✅ Device ID function
-    function getDeviceId() {
-      let id = localStorage.getItem("device_id_msmneet");
-      if (!id) {
-        id = Math.random().toString(36).substring(2) + Date.now().toString(36);
-        localStorage.setItem("device_id_msmneet", id);
-      }
-      return id;
-    }
-
-    // ✅ Auth + Device ID Check
-    firebase.auth().onAuthStateChanged(async (user) => {
+    firebase.auth().onAuthStateChanged((user) => {
       if (!user) {
-        const host = location.hostname;
-        const loginPath = host.includes("github.io") ? "/Neet2026/login.html" : "/login.html";
-        location.href = loginPath;
-        return;
-      }
+        // Dynamic login redirect based on domain
+        const host = window.location.hostname;
+        let loginPath = "";
 
-      const uid = user.uid;
-      const deviceId = getDeviceId();
-      const ref = firebase.database().ref("activeDevices/" + uid);
-
-      try {
-        const snap = await ref.get();
-        const savedId = snap.val()?.deviceId;
-
-        if (savedId && savedId !== deviceId) {
-          alert("❌ Logged in on another device.");
-          await firebase.auth().signOut();
-          const loginPath = location.hostname.includes("github.io") ? "/Neet2026/login.html" : "/login.html";
-          location.href = loginPath;
-          return;
+        if (host.includes("github.io")) {
+          loginPath = "/Neet2026/login.html";
+        } else {
+          loginPath = "/login.html";
         }
 
-        await ref.set({ deviceId, lastLogin: Date.now() });
-
-        // ✅ Unlock content
+        window.location.href = loginPath;
+      } else {
         document.getElementById("hideBodyStyle")?.remove();
         document.body.style.display = "block";
 
-        // ✅ Load videos
-        loadVideos();
-      } catch (err) {
-        alert("⚠️ Server error.");
-        firebase.auth().signOut();
+        // Load videos or data after login
+        if (typeof loadVideos === "function") {
+          setTimeout(loadVideos, 3000);
+        }
       }
     });
   </script>
-
-  <!-- CSS -->
-  <style>
-    body {
-      font-family: 'Poppins', sans-serif;
-      background-color: #121212;
-      color: white;
-      margin: 0;
-    }
-
-    .header {
-      background: #222;
-      color: white;
-      padding: 16px;
-      font-size: 20px;
-      font-weight: bold;
-      text-align: center;
-    }
-
-    .video-container {
-      padding: 20px;
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 20px;
-    }
-
-    .video-box {
-      background: #1e1e1e;
-      border-radius: 10px;
-      overflow: hidden;
-      cursor: pointer;
-      transition: transform 0.3s ease;
-    }
-
-    .video-box:hover {
-      transform: scale(1.03);
-    }
-
-    .video-box img {
-      width: 100%;
-      height: 180px;
-      object-fit: cover;
-    }
-
-    .video-title {
-      padding: 10px;
-      font-size: 16px;
-      color: white;
-    }
-  </style>
 </head>
+    <style>
+        body {
+            background-color: #121212;
+            color: white;
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+        }
+        /* Header Design */
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #1e1e1e;
+            padding: 15px;
+            font-size: 22px;
+            font-weight: bold;
+            position: relative;
+        }
+        .logo {
+            position: absolute;
+            left: 15px;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+        }
+        /* Small Header */
+        .small-header {
+            background-color: #1e1e1e;
+            padding: 5px;
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.7);
+        }
+        /* Video Container */
+        .video-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 10px;
+        }
+        .video-box {
+            width: 90%;
+            max-width: 400px;
+            margin: 10px 15px;
+            cursor: pointer;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            overflow: hidden;
+            background-color: #1e1e1e;
+            transition: 0.3s;
+        }
+        .video-box:hover {
+            transform: scale(1.05);
+            border-color: white;
+        }
+        .video-box img {
+            width: 100%;
+            border-radius: 10px;
+            pointer-events: none; /* Disable Drag */
+            -webkit-user-drag: none; /* Safari */
+        }
+        .video-title {
+            font-size: 18px;
+            font-weight: bold;
+            padding: 10px;
+        }
+    </style>
+</head>
+<body oncontextmenu="return false"> <!-- Disable Right-Click -->
 
-<body oncontextmenu="return false">
+    <!-- Header Section -->
+    <div class="header">
+        <img src=https://i.postimg.cc/fLTthHLk/image.jpg" alt="Logo" class="logo">
+        Lectures 📓
+    </div>
 
-  <div class="header">📚 NEET Lectures - Powered by BTF</div>
+    <!-- Small Header Below Entertainment -->
+    <div class="small-header">Powered by BTF Group</div>
 
-  <div id="videoContainer" class="video-container"></div>
+    <!-- Video List Container -->
+    <div id="videoContainer" class="video-container"></div>
 
-  <!-- ✅ Video Loader -->
-  <script>
-    function loadVideos() {
-      const jsonURL = "https://raw.githubusercontent.com/ydvkrn/Neet2026/refs/heads/main/home.json";
+    <script>
+        const jsonURL = "https://raw.githubusercontent.com/ydvkrn/Neet2026/main/home.json"; // JSON File Link
 
-      fetch(jsonURL)
-        .then(res => {
-          if (!res.ok) throw new Error("Failed to load JSON");
-          return res.json();
-        })
-        .then(data => {
-          const container = document.getElementById("videoContainer");
-          container.innerHTML = "";
+        fetch(jsonURL)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                displayVideos(data);
+            })
+            .catch(error => console.error("JSON Load Error: ", error));
 
-          data.forEach(video => {
-            const div = document.createElement("div");
-            div.className = "video-box";
-            div.innerHTML = `
-              <img src="${video.thumbnail}" alt="Thumbnail">
-              <div class="video-title">${video.title}</div>
-            `;
-            div.onclick = () => window.location.href = video.redirect;
-            container.appendChild(div);
-          });
-        })
-        .catch(err => {
-          console.error("JSON Load Error:", err);
-          alert("📁 Video list load failed.");
-        });
-    }
-  </script>
+        function displayVideos(videos) {
+            let container = document.getElementById("videoContainer");
+            container.innerHTML = "";
+
+            videos.forEach(video => {
+                let videoBox = document.createElement("div");
+                videoBox.classList.add("video-box");
+
+                videoBox.innerHTML = `
+                    <img src="${video.thumbnail}" alt="Thumbnail">
+                    <div class="video-title">${video.title}</div>
+                `;
+
+                videoBox.onclick = () => window.location.href = video.redirect; // Redirect to given page
+
+                container.appendChild(videoBox);
+            });
+        }
+    </script>
 
 </body>
 </html>
