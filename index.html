@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -52,6 +52,22 @@
         if (typeof loadVideos === "function") {
           setTimeout(loadVideos, 2000);
         }
+
+        // ✅ Auto logout if device ID mismatched
+        const ref = firebase.database().ref("activeDevices/" + user.uid);
+        const currentDevice = getDeviceId();
+
+        setInterval(async () => {
+          const snap = await ref.get();
+          const stored = snap.val();
+          if (!stored || stored.deviceId !== currentDevice) {
+            await firebase.auth().signOut();
+            alert("⚠️ You've been logged out as your account was accessed from another device.");
+            window.location.href = window.location.hostname.includes("github.io")
+              ? "/Neet2026/login.html"
+              : "/login.html";
+          }
+        }, 10000); // every 10 seconds
       }
     });
 
