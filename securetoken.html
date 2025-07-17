@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Validating...</title>
+  <script>
+    function redirectIfValid() {
+      const params = new URLSearchParams(window.location.search);
+      const token = params.get("token");
+      if (!token) return showError("❌ Missing token.");
+
+      try {
+        const data = JSON.parse(atob(token));
+        const now = Date.now() / 1000;
+
+        if (data.exp && now > data.exp) {
+          return showError("🔐 Token expired.");
+        }
+
+        if (!data.page) return showError("⛔ Invalid token data.");
+        window.location.href = `${data.page}?token=${token}`;
+      } catch (e) {
+        return showError("❌ Invalid or corrupted token.");
+      }
+    }
+
+    function showError(msg) {
+      document.body.innerHTML = `<h2 style="color:white; text-align:center; padding:50px;">${msg}</h2>`;
+      document.body.style.background = "#111";
+    }
+
+    redirectIfValid();
+  </script>
+</head>
+<body></body>
+</html>
