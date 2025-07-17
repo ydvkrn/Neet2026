@@ -153,12 +153,7 @@
   </div>
 
   <!-- Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/11.10.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/11.10.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/11.10.0/firebase-database-compat.js"></script>
-
-  <!-- 👇 HTML वही है, सिर्फ JS बदला गया है -->
-<script>
+  <script>
   const firebaseConfig = {
     apiKey: "AIzaSyBosCBTgIDeRabFMkuqS_cbjkdHDcegFJw",
     authDomain: "msmneet1.firebaseapp.com",
@@ -188,10 +183,14 @@
   const statusImg = document.getElementById("statusImg");
   const loginBox = document.getElementById("loginBox");
 
+  let pendingUser = null;
+  let pendingDeviceRef = null;
+  let currentDeviceId = getDeviceId();
+
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
 
-    msg.textContent = "";
+    msg.innerHTML = "";
     msg.className = "";
     loader.style.display = "block";
     statusImg.style.display = "none";
@@ -203,25 +202,47 @@
     try {
       const userCred = await auth.signInWithEmailAndPassword(email, password);
       const user = userCred.user;
-      const deviceId = getDeviceId();
       const ref = db.ref("activeDevices/" + user.uid);
 
       const snap = await ref.get();
       const stored = snap.val();
 
-      if (stored && stored.deviceId && stored.deviceId !== deviceId) {
-        // ✅ Show message in page instead of popup
+      if (stored && stored.deviceId && stored.deviceId !== currentDeviceId) {
+        // Show message in HTML with "Continue Anyway" button
         loader.style.display = "none";
         statusImg.src = "https://i.postimg.cc/jdSwyFFV/failure-icon-23216.png";
         statusImg.style.display = "block";
-        msg.textContent = "🔐 This account is already logged in on another device.";
         msg.className = "msg error";
+        msg.innerHTML = `
+          🔐 This account is already logged in on another device.<br>
+          <button id="forceLogin" style="margin-top:10px;padding:8px 16px;background:white;color:black;border:none;border-radius:6px;cursor:pointer;">Logout from other device & Continue</button>
+        `;
+        pendingUser = user;
+        pendingDeviceRef = ref;
         loginBox.classList.add("shake");
-        await auth.signOut();
-        return;
+
+        document.getElementById("forceLogin").addEventListener("click", async () => {
+          msg.textContent = "⏳ Logging you in...";
+          loader.style.display = "block";
+          statusImg.style.display = "none";
+
+          await pendingDeviceRef.set({ deviceId: currentDeviceId, lastLogin: Date.now() });
+
+          loader.style.display = "none";
+          statusImg.src = "https://cliply.co/wp-content/uploads/2021/03/372103860_CHECK_MARK_400px.gif";
+          statusImg.style.display = "block";
+          msg.textContent = "✅ Login successful!";
+          msg.className = "msg success";
+
+          setTimeout(() => {
+            window.location.href = "index.html";
+          }, 1000);
+        });
+
+        return; // wait for button
       }
 
-      await ref.set({ deviceId, lastLogin: Date.now() });
+      await ref.set({ deviceId: currentDeviceId, lastLogin: Date.now() });
 
       loader.style.display = "none";
       statusImg.src = "https://cliply.co/wp-content/uploads/2021/03/372103860_CHECK_MARK_400px.gif";
@@ -231,7 +252,8 @@
 
       setTimeout(() => {
         window.location.href = "index.html";
-      }, 1000); // ⏱ faster redirect
+      }, 1000);
+
     } catch (err) {
       loader.style.display = "none";
       statusImg.src = "https://i.postimg.cc/jdSwyFFV/failure-icon-23216.png";
